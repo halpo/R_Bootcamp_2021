@@ -1,0 +1,9 @@
+name: "R-bootcamp-2020"
+navbar:
+  title: "R Bootcamp 2020"
+  left:
+    - text: "Home"
+      href: index.html
+    - text: "Syllabus"
+      href: syllabus.html
+  exclude: ["*.xlsx", "data", "*.pdn", "*_cache"]

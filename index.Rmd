@@ -1,0 +1,51 @@
+---
+title: "R Bootcamp 2020"
+---
+
+R Users, 
+
+Welcome to R Bootcamp 2020.  
+
+This webpage will be your guide to this course. Please Start by reading the 
+[Syllabus](syllabus.html)
+
+
+## Slides
+
+*Links will be made live after class*
+
+* [Introductions](Introductions.html) [![](images/pdf.png)](pdf/Introductions.pdf)
+* Principles
+* Resources
+* Syntax & Data Structures
+* Packages
+* Tidyverse
+* Getting Data
+* Data Wrangling
+* Graphics
+* Analysis
+* Wrapup
+
+## Data
+
+
+## Videos
+
+*Posted as available*
+
+* Day 1
+* Day 2
+* Day 3
+* Day 4
+* Day 5
+
+
+# {.footer}
+<hr>
+```{css, echo=FALSE}
+.footer p {
+    font-size: smaller
+}
+```
+Last Updated: *`r Sys.time()`*
+

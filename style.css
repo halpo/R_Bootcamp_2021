@@ -1,0 +1,213 @@
+.fullpage {
+    padding:0;
+    margin:0;
+    height: 100%;
+    width: 100%;
+}
+.fullwidth {
+    padding:0;
+    margin:0;
+    width: 100%;
+}
+.caption{
+    font-size: xx-small;
+    text-align: right;
+}
+.columns-3{
+    -ms-column-count: 3;
+    -webkit-column-count: 3;
+    -moz-column-count: 3;
+    column-count: 3;
+}
+h3{
+    border-bottom: solid;
+    margin-top: .5em;
+    margin-bottom: .25em;
+    font-weight: bold;
+}
+ol li::before{
+    opacity: 0.5;
+    font-size:smaller;
+}
+.float-right{
+    float: right;
+    width: 30%;
+}
+
+blockquote{
+    margin-left: 20%;
+    margin-right: 20%;
+    font-style: italic;
+}
+.timer {
+  text-align: center;
+  font-size: 180px;
+}
+.timer .warning {
+    color:red;
+}
+.timer .timesup {
+    color:red;
+    animation: blinking 1s linear infinite;
+}
+
+@keyframes blinking {
+    50% {
+        color: black;
+    }
+}
+
+.keyfunction,
+.terminology,
+.concept{
+border: solid black;
+border-radius: 10px;
+}
+.terminology:before{ content: "Terminology";}
+.keyfunction:before{ content: "Key Function";}
+.concept::before{content: "Concept";}
+.terminology:before,
+.keyfunction:before,
+.concept:before{
+  background-color: black;
+  color: gold;
+  font-weight: bold;
+  padding: 3px;
+  border-bottom-right-radius: 10px;
+  border-top-left-radius: 10px;
+}
+
+dt {
+    margin: 5px;
+}
+dd {
+    margin-left:50px;
+    margin-right:25px;
+}
+.R-error {
+    border: double red;
+    border-radius: 10px;
+    margin-left: 5%;
+    margin-right: 5%;
+}
+.R-error p:first-child:before {
+    content: url(./images/noentry.svg);
+    float: left;
+    margin: 5px;
+    font-size:smaller;
+}
+.R-error:before {
+    content: "ERROR:";
+    margin-top: 25px;
+    margin-bottom: 25px;
+    background: red;
+    color: black;
+    border-radius: 10px 0 10px 0;
+    font-weight: bolder;
+    padding-left: .25em;
+    padding-right: .25em;
+}
+.R-error ul {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+.R-error ul>li {
+    font-size: smaller;
+    display: inline;
+    flex-grow: 1;
+    flex-basis: auto;
+    padding: 0 1em;
+}
+.lang-message:before{
+    content: "Message:";
+    font-weight: bolder;
+}
+.lang-message{
+    border: solid #21c1de;
+    background: #81dcec;
+}
+#summarizing-models pre:nth-child(2) {
+    line-height: 1.1em;
+}
+.lang-r + img,
+.lang-r + p > img {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+#plots>p>img{
+    height:50%;
+    width:50%;
+    float:left;
+}
+.center{
+    text-align:center;
+}
+.calendar-event{
+    min-height: 150px;
+}
+.event-date-time {
+    border: red solid;
+    display: block;
+    float: left;
+    border-radius: 10px;
+    width: 150px;
+    height: 150px;
+    text-align: center;
+}
+.event-date-time .month {
+    display: block;
+    background: red;
+    border-radius: 10px 10px 0 -1;
+    float: left;
+    width: 145px;
+    color: white;
+    height: 1.3em;
+    text-align: center;
+}
+.event-date-time .wday {
+    display: block;
+    font-size: 10pt;
+    line-height: 10pt;
+    width: 150px;
+    text-align: center;
+    height: 25px;
+    text-decoration-line: underline;
+}
+.event-date-time .day {
+    display: block;
+    font-size: 75px;
+    height: 75px;
+    text-align: center;
+}
+.event-date-time .time:before {
+    content: "@";
+}
+.event-date-time .time {
+    font-size: 20px;
+    height: 25px;
+    line-height: 50px;
+    text-align: center;
+}
+.calendar-event .event-title{
+    font-weight: bolder;
+    font-size: larger;
+}
+.calendar-event .event-presenter:before{
+    content: "\01F464";
+    font-style:normal;
+    font-size: 80%;
+}
+.calendar-event .event-presenter{
+    font-style: italic;
+}
+.calendar-event .event-location:before{
+    content: "⌖";
+    font-style:normal;
+    font-size: 150%;
+}
+.calendar-event .event-location{
+    font-size: smaller;
+}

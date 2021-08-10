@@ -1,0 +1,59 @@
+<script type='text/javascript' id='timer-js'>
+var counts = {};
+var timers = {};
+var initial = {};
+function startTimer() {
+	//var count = initial;
+	var trigger = event.target;
+	var div = trigger.parentNode;
+	console.log("startTimer triggered by click on " + div.nodeName + "#" + div.id + ">" + trigger.nodeName);
+	var eid = div.id;
+	var warning = (div.hasAttribute("warnafter")) ? (+div.getAttribute("warnafter")) : 0;
+	console.log("eid=" + eid + ", warning=" + warning);
+    if (!(eid in initial)){
+        var p = trigger;
+
+        var init = trigger.innerHTML;
+        console.log("init=" + init);
+
+        var a = init.split(':');
+        initial[eid] = (+a[0])*60 + (+a[1]);
+        console.log("initial[eid]=", initial[eid]);
+    }
+    counts[eid] = initial[eid];
+    if (eid in timers && timers[eid] != 0) {
+        clearInterval(timers[eid]); timers[eid] = 0;
+        var minutes = Math.floor((initial[eid] % (60 * 60)) / (60));
+        var seconds = Math.floor((initial[eid] % (60)));
+        document.getElementById(eid).innerHTML = hms(initial[eid]);
+    } else {
+        timers[eid] = setInterval(function() {
+            // Time calculations for days, hours, minutes and seconds
+            var count = counts[eid] - 1;
+            if (count > 0) {
+                document.getElementById(eid).innerHTML = hms(count, count <= warning);
+            } else {
+                document.getElementById(eid).innerHTML = "<p class='timesup'>0:00</p>";
+                clearInterval(timers[eid]);
+                timers[eid] = 0;
+            }
+            counts[eid] = count;
+        }, 1000);
+    }
+};
+function hms(count, warn) {
+    var leading = ''
+    var minutes = Math.floor((count % (60 * 60)) / (60));
+    var seconds = Math.floor((count % (60)));
+    if (seconds <= 9){
+        leading = "0";
+    }
+    var start;
+    if (warn) {
+        start = "<p class='warning'>";
+    } else {
+        start = "<p>";
+    }
+    return start + minutes + ":" + leading +  seconds + "</p>";
+};
+</script>

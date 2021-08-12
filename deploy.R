@@ -143,6 +143,6 @@ function( dir = ".", render = NA
     # if (github_pages) {
     #     build_github_pages(pkg)
     # }
-    github_push(dest_dir, commit_message, remote, branch)
+     github_push(dest_dir, commit_message, remote, branch)
     invisible()
 }

@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Introductions</title>
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <meta name="generator" content="pandoc" />
+
+
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+
+  <base target="_blank">
+
+  <script type="text/javascript">
+    var SLIDE_CONFIG = {
+      // Slide settings
+      settings: {
+                title: 'Introductions',
+                        useBuilds: true,
+        usePrettify: true,
+        enableSlideAreas: true,
+        enableTouch: true,
+                        favIcon: '00-Introductions_files/logo.png',
+              },
+
+      // Author information
+      presenters: [
+            {
+        name:  'Andrew Redd, PhD.' ,
+        company: '',
+        gplus: '',
+        twitter: '',
+        www: '',
+        github: ''
+      },
+            ]
+    };
+  </script>
+
+  <script type='text/javascript' id='timer-js'>
+  var counts = {};
+  var timers = {};
+  var initial = {};
+  function startTimer() {
+  	//var count = initial;
+  	var trigger = event.target;
+  	var div = trigger.parentNode;
+  	console.log("startTimer triggered by click on " + div.nodeName + "#" + div.id + ">" + trigger.nodeName);
+  	var eid = div.id;
+  	var warning = (div.hasAttribute("warnafter")) ? (+div.getAttribute("warnafter")) : 0;
+  	console.log("eid=" + eid + ", warning=" + warning);
+      if (!(eid in initial)){
+          var p = trigger;
+
+          var init = trigger.innerHTML;
+          console.log("init=" + init);
+
+          var a = init.split(':');
+          initial[eid] = (+a[0])*60 + (+a[1]);
+          console.log("initial[eid]=", initial[eid]);
+      }
+      counts[eid] = initial[eid];
+      if (eid in timers && timers[eid] != 0) {
+          clearInterval(timers[eid]); timers[eid] = 0;
+          var minutes = Math.floor((initial[eid] % (60 * 60)) / (60));
+          var seconds = Math.floor((initial[eid] % (60)));
+          document.getElementById(eid).innerHTML = hms(initial[eid]);
+      } else {
+          timers[eid] = setInterval(function() {
+              // Time calculations for days, hours, minutes and seconds
+              var count = counts[eid] - 1;
+              if (count > 0) {
+                  document.getElementById(eid).innerHTML = hms(count, count <= warning);
+              } else {
+                  document.getElementById(eid).innerHTML = "<p class='timesup'>0:00</p>";
+                  clearInterval(timers[eid]);
+                  timers[eid] = 0;
+              }
+              counts[eid] = count;
+          }, 1000);
+      }
+  };
+  function hms(count, warn) {
+      var leading = ''
+      var minutes = Math.floor((count % (60 * 60)) / (60));
+      var seconds = Math.floor((count % (60)));
+      if (seconds <= 9){
+          leading = "0";
+      }
+      var start;
+      if (warn) {
+          start = "<p class='warning'>";
+      } else {
+          start = "<p>";
+      }
+      return start + minutes + ":" + leading +  seconds + "</p>";
+  };
+  </script>
+  <script src="site_libs/header-attrs-2.8/header-attrs.js"></script>
+  <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="site_libs/bootstrap-3.3.5/css/paper.min.css" rel="stylesheet" />
+  <script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+  <script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+  <script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+  <style>h1 {font-size: 34px;}
+         h1.title {font-size: 38px;}
+         h2 {font-size: 30px;}
+         h3 {font-size: 24px;}
+         h4 {font-size: 18px;}
+         h5 {font-size: 16px;}
+         h6 {font-size: 12px;}
+         code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+         pre:not([class]) { background-color: white }</style>
+  <link href="site_libs/ioslides-13.5.1/fonts/fonts.css" rel="stylesheet" />
+  <link href="site_libs/ioslides-13.5.1/theme/css/default.css" rel="stylesheet" />
+  <link href="site_libs/ioslides-13.5.1/theme/css/phone.css" rel="stylesheet" />
+  <script src="site_libs/ioslides-13.5.1/js/modernizr.custom.45394.js"></script>
+  <script src="site_libs/ioslides-13.5.1/js/prettify/prettify.js"></script>
+  <script src="site_libs/ioslides-13.5.1/js/prettify/lang-r.js"></script>
+  <script src="site_libs/ioslides-13.5.1/js/prettify/lang-yaml.js"></script>
+  <script src="site_libs/ioslides-13.5.1/js/hammer.js"></script>
+  <script src="site_libs/ioslides-13.5.1/js/slide-controller.js"></script>
+  <script src="site_libs/ioslides-13.5.1/js/slide-deck.js"></script>
+
+  <style type="text/css">
+
+    b, strong {
+      font-weight: bold;
+    }
+
+    em {
+      font-style: italic;
+    }
+
+    summary {
+      display: list-item;
+    }
+
+    slides > slide {
+      -webkit-transition: all 0.4s ease-in-out;
+      -moz-transition: all 0.4s ease-in-out;
+      -o-transition: all 0.4s ease-in-out;
+      transition: all 0.4s ease-in-out;
+    }
+
+    .auto-fadein {
+      -webkit-transition: opacity 0.6s ease-in;
+      -webkit-transition-delay: 0.4s;
+      -moz-transition: opacity 0.6s ease-in 0.4s;
+      -o-transition: opacity 0.6s ease-in 0.4s;
+      transition: opacity 0.6s ease-in 0.4s;
+      opacity: 0;
+    }
+/* https://github.com/ropensci/plotly/pull/524#issuecomment-468142578 */
+slide:not(.current) .plotly.html-widget{
+  display: block;
+}
+
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+            
+    slides > slide:not(.nobackground):before {
+      font-size: 12pt;
+      content: "";
+      position: absolute;
+      bottom: 20px;
+      left: 60px;
+      background: url(00-Introductions_files/logo.png) no-repeat 0 50%;
+      -webkit-background-size: 30px 30px;
+      -moz-background-size: 30px 30px;
+      -o-background-size: 30px 30px;
+      background-size: 30px 30px;
+      padding-left: 40px;
+      height: 30px;
+      line-height: 1.9;
+    }
+  </style>
+
+  <link rel="stylesheet" href="style.css" type="text/css" />
+
+</head>
+
+<body style="opacity: 0">
+
+<slides class="layout-widescreen">
+
+  <slide class="title-slide segue nobackground">
+        <aside class="gdbar"><img src="00-Introductions_files/logo.png"></aside>
+        <!-- The content of this hgroup is replaced programmatically through the slide_config.json. -->
+    <hgroup class="auto-fadein">
+      <h1 data-config-title><!-- populated from slide_config.json --></h1>
+      
+      <p data-config-presenter><!-- populated from slide_config.json --></p>
+            <p style="margin-top: 6px; margin-left: -2px;">R Bootcamp 2021</p>
+          </hgroup>
+  </slide>
+
+<slide class=""><hgroup><h2></h2></hgroup><article >
+
+<img class="fullpage" src='images/welcome50.jpg' title='fig:'/><p class='caption'>Welcome by <a href='http://www.nyphotographic.com/' title=''>Nick Youngson</a> <a href='http://creativecommons.org/licenses/by-sa/3.0/' title=''>CC BY-SA 3.0</a></p>
+
+</article></slide><slide class=""><hgroup><h2>Who am I</h2></hgroup><article  id="who-am-i">
+
+<h3>Academic</h3>
+
+<ul>
+<li>Assistant Professor in Division of Epidemiology</li>
+<li>Research Associate at SLC Veterans Health Administration.</li>
+<li>Approximately 15 years working in R</li>
+<li>[<a href='https://github.com/halpo' title=''>https://github.com/halpo</a>]</li>
+<li>Author of 12 packages on CRAN.</li>
+<li><a href='https://orcid.org/0000-0002-6149-2438/print' title=''>ORCID: 0000-0002-6149-2438</a></li>
+<li><a href='https://www.ncbi.nlm.nih.gov/myncbi/andrew.redd.2/bibliography/public/' title=''>NIH Bibliography</a></li>
+</ul>
+
+<h3>Contact Info</h3>
+
+<ul>
+<li><a href='mailto:Andrew.Redd@hsc.utah.edu' title=''>Andrew.Redd@hsc.utah.edu</a></li>
+<li>Office 1st floor, Room 1N411</li>
+</ul>
+
+<aside class='note'><section><p>But just ask because no one knows room numbers down there.</p></section></aside>
+
+</article></slide><slide class="segue dark nobackground level1"><hgroup class = 'auto-fadein'><h2>Overview</h2></hgroup><article  id="overview">
+
+</article></slide><slide class=""><hgroup><h2>What you should know already</h2></hgroup><article  id="what-you-should-know-already">
+
+<ul class = 'build'>
+<li>Basic computing
+
+<ul>
+<li>Your operating system</li>
+<li>Internet search</li>
+<li>Et cetera</li>
+</ul></li>
+<li>At least one statistical analysis software system
+
+<ul>
+<li>SAS</li>
+<li>STATA</li>
+<li><em>Excel does not cut it</em></li>
+</ul></li>
+<li>Basics of statistical analysis
+
+<ul>
+<li>p-values</li>
+<li>hypothesis tests</li>
+<li>linear regression</li>
+</ul></li>
+</ul>
+
+</article></slide><slide class=""><hgroup><h2>What should already be done</h2></hgroup><article  id="what-should-already-be-done">
+
+<ul class = 'build'>
+<li>Installed <a href='https://cran.r-project.org' title=''>R</a></li>
+<li>Installed <a href='https://rstudio.org' title=''>RStudio</a></li>
+<li>Join <a href='https://teams.microsoft.com/l/team/19%3aZXNSxAKzU66xF3Ao5-IQ-SO7_DOVqHh4ltU0ilm0-HI1%40thread.tacv2/conversations?groupId=92083ec4-b4ed-4248-b9ea-20ed8ba9fcd9&amp;tenantId=5217e0e7-539d-4563-b1bf-7c6dcf074f91' title=''>Microsoft Teams team</a><br/><img src='images/teamscode.png' title=''/></li>
+</ul>
+
+</article></slide><slide class=""><hgroup><h2>Goals for this class</h2></hgroup><article  id="goals-for-this-class">
+
+<ol>
+<li>Learn where to find help.</li>
+<li>Learn the principles to effectively using R.</li>
+<li>Learn basic procedures in R
+
+<ol>
+<li>Data cleaning</li>
+<li>Table construction</li>
+<li>Analyses: t-test, linear models, etc.</li>
+</ol></li>
+</ol></article></slide>
+
+
+  <slide class="backdrop"></slide>
+
+</slides>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+<!-- map slide visiblity events into shiny -->
+<script>
+  (function() {
+    if (window.jQuery) {
+       window.jQuery(document).on('slideleave', function(e) {
+         window.jQuery(e.target).trigger('hidden');
+      });
+       window.jQuery(document).on('slideenter', function(e) {
+         window.jQuery(e.target).trigger('shown');
+      });
+    }
+  })();
+</script>
+
+</body>
+</html>

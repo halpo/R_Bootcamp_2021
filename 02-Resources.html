@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Resources</title>
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <meta name="generator" content="pandoc" />
+
+
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+
+  <base target="_blank">
+
+  <script type="text/javascript">
+    var SLIDE_CONFIG = {
+      // Slide settings
+      settings: {
+                title: 'Resources',
+                        useBuilds: true,
+        usePrettify: true,
+        enableSlideAreas: true,
+        enableTouch: true,
+                        favIcon: '02-Resources_files/logo.png',
+              },
+
+      // Author information
+      presenters: [
+            {
+        name:  'Andrew Redd, PhD.' ,
+        company: '',
+        gplus: '',
+        twitter: '',
+        www: '',
+        github: ''
+      },
+            ]
+    };
+  </script>
+
+  <script type='text/javascript' id='timer-js'>
+  var counts = {};
+  var timers = {};
+  var initial = {};
+  function startTimer() {
+  	//var count = initial;
+  	var trigger = event.target;
+  	var div = trigger.parentNode;
+  	console.log("startTimer triggered by click on " + div.nodeName + "#" + div.id + ">" + trigger.nodeName);
+  	var eid = div.id;
+  	var warning = (div.hasAttribute("warnafter")) ? (+div.getAttribute("warnafter")) : 0;
+  	console.log("eid=" + eid + ", warning=" + warning);
+      if (!(eid in initial)){
+          var p = trigger;
+
+          var init = trigger.innerHTML;
+          console.log("init=" + init);
+
+          var a = init.split(':');
+          initial[eid] = (+a[0])*60 + (+a[1]);
+          console.log("initial[eid]=", initial[eid]);
+      }
+      counts[eid] = initial[eid];
+      if (eid in timers && timers[eid] != 0) {
+          clearInterval(timers[eid]); timers[eid] = 0;
+          var minutes = Math.floor((initial[eid] % (60 * 60)) / (60));
+          var seconds = Math.floor((initial[eid] % (60)));
+          document.getElementById(eid).innerHTML = hms(initial[eid]);
+      } else {
+          timers[eid] = setInterval(function() {
+              // Time calculations for days, hours, minutes and seconds
+              var count = counts[eid] - 1;
+              if (count > 0) {
+                  document.getElementById(eid).innerHTML = hms(count, count <= warning);
+              } else {
+                  document.getElementById(eid).innerHTML = "<p class='timesup'>0:00</p>";
+                  clearInterval(timers[eid]);
+                  timers[eid] = 0;
+              }
+              counts[eid] = count;
+          }, 1000);
+      }
+  };
+  function hms(count, warn) {
+      var leading = ''
+      var minutes = Math.floor((count % (60 * 60)) / (60));
+      var seconds = Math.floor((count % (60)));
+      if (seconds <= 9){
+          leading = "0";
+      }
+      var start;
+      if (warn) {
+          start = "<p class='warning'>";
+      } else {
+          start = "<p>";
+      }
+      return start + minutes + ":" + leading +  seconds + "</p>";
+  };
+  </script>
+  <script src="site_libs/header-attrs-2.8/header-attrs.js"></script>
+  <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="site_libs/bootstrap-3.3.5/css/paper.min.css" rel="stylesheet" />
+  <script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+  <script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+  <script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+  <style>h1 {font-size: 34px;}
+         h1.title {font-size: 38px;}
+         h2 {font-size: 30px;}
+         h3 {font-size: 24px;}
+         h4 {font-size: 18px;}
+         h5 {font-size: 16px;}
+         h6 {font-size: 12px;}
+         code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+         pre:not([class]) { background-color: white }</style>
+  <link href="site_libs/ioslides-13.5.1/fonts/fonts.css" rel="stylesheet" />
+  <link href="site_libs/ioslides-13.5.1/theme/css/default.css" rel="stylesheet" />
+  <link href="site_libs/ioslides-13.5.1/theme/css/phone.css" rel="stylesheet" />
+  <script src="site_libs/ioslides-13.5.1/js/modernizr.custom.45394.js"></script>
+  <script src="site_libs/ioslides-13.5.1/js/prettify/prettify.js"></script>
+  <script src="site_libs/ioslides-13.5.1/js/prettify/lang-r.js"></script>
+  <script src="site_libs/ioslides-13.5.1/js/prettify/lang-yaml.js"></script>
+  <script src="site_libs/ioslides-13.5.1/js/hammer.js"></script>
+  <script src="site_libs/ioslides-13.5.1/js/slide-controller.js"></script>
+  <script src="site_libs/ioslides-13.5.1/js/slide-deck.js"></script>
+
+  <style type="text/css">
+
+    b, strong {
+      font-weight: bold;
+    }
+
+    em {
+      font-style: italic;
+    }
+
+    summary {
+      display: list-item;
+    }
+
+    slides > slide {
+      -webkit-transition: all 0.4s ease-in-out;
+      -moz-transition: all 0.4s ease-in-out;
+      -o-transition: all 0.4s ease-in-out;
+      transition: all 0.4s ease-in-out;
+    }
+
+    .auto-fadein {
+      -webkit-transition: opacity 0.6s ease-in;
+      -webkit-transition-delay: 0.4s;
+      -moz-transition: opacity 0.6s ease-in 0.4s;
+      -o-transition: opacity 0.6s ease-in 0.4s;
+      transition: opacity 0.6s ease-in 0.4s;
+      opacity: 0;
+    }
+/* https://github.com/ropensci/plotly/pull/524#issuecomment-468142578 */
+slide:not(.current) .plotly.html-widget{
+  display: block;
+}
+
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+            
+    slides > slide:not(.nobackground):before {
+      font-size: 12pt;
+      content: "";
+      position: absolute;
+      bottom: 20px;
+      left: 60px;
+      background: url(02-Resources_files/logo.png) no-repeat 0 50%;
+      -webkit-background-size: 30px 30px;
+      -moz-background-size: 30px 30px;
+      -o-background-size: 30px 30px;
+      background-size: 30px 30px;
+      padding-left: 40px;
+      height: 30px;
+      line-height: 1.9;
+    }
+  </style>
+
+  <link rel="stylesheet" href="style.css" type="text/css" />
+
+</head>
+
+<body style="opacity: 0">
+
+<slides class="layout-widescreen">
+
+  <slide class="title-slide segue nobackground">
+        <aside class="gdbar"><img src="02-Resources_files/logo.png"></aside>
+        <!-- The content of this hgroup is replaced programmatically through the slide_config.json. -->
+    <hgroup class="auto-fadein">
+      <h1 data-config-title><!-- populated from slide_config.json --></h1>
+      
+      <p data-config-presenter><!-- populated from slide_config.json --></p>
+            <p style="margin-top: 6px; margin-left: -2px;">R Bootcamp 2020</p>
+          </hgroup>
+  </slide>
+
+<slide class="segue dark nobackground level1"><hgroup class = 'auto-fadein'><h2>Resources</h2></hgroup><article  id="resources">
+
+<p><a href='https://www.azquotes.com/quote/783095' title=''><img class="fullwidth" src='https://www.azquotes.com/picture-quotes/quote-know-where-to-find-the-information-and-how-to-use-it-that-s-the-secret-of-success-albert-einstein-78-30-95.jpg' title=''/></a></p>
+
+</article></slide><slide class=""><hgroup><h2>Help files</h2></hgroup><article  id="help-files">
+
+<ul class = 'build'>
+<li>Use <code>?</code> for finding the help of a function.
+
+<ul>
+<li><code>?help</code></li>
+<li><code>package?stats</code></li>
+</ul></li>
+<li>Use <code>??</code> for searching</li>
+<li>Can’t remember the name of that function?<br/>That’s what <code>aprops</code> is for.
+
+<ul>
+<li><code>apropos(&quot;print&quot;)</code></li>
+</ul></li>
+</ul>
+
+</article></slide><slide class=""><hgroup><h2>Help files</h2></hgroup><article  id="help-files-1">
+
+<ul>
+<li>Use <code>?</code> for finding the help of a function.
+
+<ul>
+<li><code>?help</code></li>
+<li><code>package?stats</code></li>
+</ul></li>
+<li>Use <code>??</code> for searching</li>
+<li>Can’t remember the name of that function?<br/>That’s what <code>aprops</code> is for.
+
+<ul>
+<li><code>apropos(&quot;print&quot;)</code></li>
+</ul></li>
+</ul>
+
+<h3>Caveat</h3>
+
+<p>Documentation for only those packages that are loaded and/or installed.</p>
+
+</article></slide><slide class=""><hgroup><h2>Online documentation</h2></hgroup><article  id="online-documentation" class="flexbox vcenter">
+
+<p><a href='https://www.rdocumentation.org/' title=''><img src='images/RDocumentation.org.png' title=''/></a></p>
+
+</article></slide><slide class=""><hgroup><h2>Tasks</h2></hgroup><article  id="tasks">
+
+<p><a href='https://www.rdocumentation.org/' title=''><img class="float-right" src='images/RDocumentation.org.png' title=''/></a></p>
+
+<p>Using R documentation</p>
+
+<ul>
+<li>☐ Find a function that performs a t-test.</li>
+<li>☐ Find 3 different functions that performs the Wilcoxon rank sum test.</li>
+<li>☐ Find the list of packages that I have on CRAN.</li>
+</ul>
+
+</article></slide><slide class=""><hgroup><h2>Answers</h2></hgroup><article  id="answers">
+
+<ul>
+<li>☒ Find a function that performs a t-test.
+
+<ul>
+<li><a href='https://www.rdocumentation.org/packages/stats/versions/3.6.1/topics/t.test' title=''><code>stats::t.test()</code></a></li>
+<li><a href='https://www.rdocumentation.org/packages/stats/versions/3.6.1/topics/pairwise.t.test' title=''><code>stats::pairwise.t.test()</code></a></li>
+<li><a href='https://www.rdocumentation.org/packages/rgr/versions/1.1.15/topics/gx.t.test' title=''><code>rgr::gx.t.test()</code></a></li>
+<li><a href='https://www.rdocumentation.org/packages/rt.test/versions/1.18.7.9/topics/Robustified-t-test' title=''><code>rt.test::rt.test()</code></a></li>
+</ul></li>
+</ul>
+
+</article></slide><slide class=""><hgroup><h2>Answers</h2></hgroup><article  id="answers-1">
+
+<ul>
+<li>☒ Find a function that performs a t-test.</li>
+<li>☒ Find 3 different functions that performs the Wilcoxon rank sum test.
+
+<ul>
+<li><a href='https://www.rdocumentation.org/packages/stats/versions/3.6.1/topics/wilcox.test' title=''><code>stats::wilcox.test()</code></a></li>
+<li><a href='https://www.rdocumentation.org/packages/PASWR/versions/1.1/topics/wilcoxE.test' title=''><code>PASWR::wilcoxE.test()</code></a></li>
+<li><a href='https://www.rdocumentation.org/packages/exactRankTests/versions/0.8-30/topics/wilcox.exact' title=''><code>exactRankTests::wilcox.exact()</code></a></li>
+</ul></li>
+</ul>
+
+</article></slide><slide class=""><hgroup><h2>Answers</h2></hgroup><article  id="answers-2">
+
+<ul>
+<li>☒ Find a function that performs a t-test.</li>
+<li>☒ Find 3 different functions that performs the Wilcoxon rank sum test.</li>
+<li>☒ Find the list of packages that I have on CRAN.
+
+<ul>
+<li><a href='https://www.rdocumentation.org/collaborators/name/Andrew%20Redd' title=''>https://www.rdocumentation.org/collaborators/name/Andrew%20Redd</a></li>
+</ul></li>
+</ul>
+
+</article></slide><slide class=""><hgroup><h2>Asking Questions</h2></hgroup><article  id="asking-questions">
+
+<p>The best place for getting questions answered is</p>
+
+<p><a href='https://stackoverflow.com/questions/tagged/r?tab=Newest' title=''><img class="fullwidth" src='images/so-logo.png' title=''/></a></p>
+
+<p>But be sure to use search with the <code>[r]</code> or <code>[rstats]</code> tags to find R specific information.</p>
+
+</article></slide><slide class=""><hgroup><h2>R Related news</h2></hgroup><article  id="r-related-news">
+
+<ul>
+<li>search <img src='images/twitter.svg' title=''/> with the hashtag <a href='https://twitter.com/search?q=%23rstats' title=''><code>#rstats</code></a></li>
+<li><a href='https://journal.r-project.org/' title=''>The R Journal</a></li>
+<li><a href='https://www.r-bloggers.com/' title=''><img src='images/R-bloggers.png' title=''/></a></li>
+</ul>
+
+</article></slide><slide class=""><hgroup><h2>Next Up</h2></hgroup><article  id="next-up" class="flexbox vcenter">
+
+<p><strong><a href='03-Syntax.html' title=''>Syntax</a></strong></p></article></slide>
+
+
+  <slide class="backdrop"></slide>
+
+</slides>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+<!-- map slide visiblity events into shiny -->
+<script>
+  (function() {
+    if (window.jQuery) {
+       window.jQuery(document).on('slideleave', function(e) {
+         window.jQuery(e.target).trigger('hidden');
+      });
+       window.jQuery(document).on('slideenter', function(e) {
+         window.jQuery(e.target).trigger('shown');
+      });
+    }
+  })();
+</script>
+
+</body>
+</html>

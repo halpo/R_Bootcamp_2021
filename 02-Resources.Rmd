@@ -1,0 +1,102 @@
+---
+title: "Resources"
+author: "Andrew Redd, PhD."
+date: "R Bootcamp 2020"
+output:
+    ioslides_presentation:
+        logo: "images/U_Health_stacked_png_red.png"
+        theme: "paper"
+        css: "style.css"
+        keep_md: FALSE
+        md_extensions:
+            - "+task_lists"
+            - "+multiline_tables"
+        includes:
+            in_header: timer.htm
+        standalone: TRUE
+        widescreen: TRUE
+---
+
+# Resources 
+[![](https://www.azquotes.com/picture-quotes/quote-know-where-to-find-the-information-and-how-to-use-it-that-s-the-secret-of-success-albert-einstein-78-30-95.jpg){.fullwidth}](https://www.azquotes.com/quote/783095)
+
+## Help files
+
+> * Use `?` for finding the help of a function.
+>   - `?help`
+>   - `package?stats`
+> * Use `??` for searching
+> * Can't remember the name of that function?  
+>   That's what `aprops` is for.
+>     - `apropos("print")`
+
+## Help files
+
+* Use `?` for finding the help of a function.
+  - `?help`
+  - `package?stats`
+* Use `??` for searching
+* Can't remember the name of that function?  
+  That's what `aprops` is for.
+  - `apropos("print")`
+ 
+### Caveat 
+
+Documentation for only those packages that are loaded and/or installed.
+
+
+## Online documentation {.flexbox .vcenter}
+
+[![RDocumentation.org](images/RDocumentation.org.png)](https://www.rdocumentation.org/)
+
+## Tasks
+
+[![RDocumentation.org](images/RDocumentation.org.png){.float-right}](https://www.rdocumentation.org/)
+
+Using R documentation
+
+* [ ] Find a function that performs a t-test.
+* [ ] Find 3 different functions that performs the Wilcoxon rank sum test.
+* [ ] Find the list of packages that I have on CRAN.
+
+## Answers
+
+* [x] Find a function that performs a t-test.
+    - [`stats::t.test()`](https://www.rdocumentation.org/packages/stats/versions/3.6.1/topics/t.test)
+    - [`stats::pairwise.t.test()`](https://www.rdocumentation.org/packages/stats/versions/3.6.1/topics/pairwise.t.test)
+    - [`rgr::gx.t.test()`](https://www.rdocumentation.org/packages/rgr/versions/1.1.15/topics/gx.t.test)
+    - [`rt.test::rt.test()`](https://www.rdocumentation.org/packages/rt.test/versions/1.18.7.9/topics/Robustified-t-test)
+
+## Answers
+
+- [x] Find a function that performs a t-test.
+- [x] Find 3 different functions that performs the Wilcoxon rank sum test.
+    + [`stats::wilcox.test()`](https://www.rdocumentation.org/packages/stats/versions/3.6.1/topics/wilcox.test)
+    + [`PASWR::wilcoxE.test()`](https://www.rdocumentation.org/packages/PASWR/versions/1.1/topics/wilcoxE.test)
+    + [`exactRankTests::wilcox.exact()`](https://www.rdocumentation.org/packages/exactRankTests/versions/0.8-30/topics/wilcox.exact)
+
+## Answers
+
+- [x] Find a function that performs a t-test.
+- [x] Find 3 different functions that performs the Wilcoxon rank sum test.
+- [x] Find the list of packages that I have on CRAN.
+    + https://www.rdocumentation.org/collaborators/name/Andrew%20Redd
+
+## Asking Questions
+
+The best place for getting questions answered is
+
+[![StackOverflow](images/so-logo.png){.fullwidth}](https://stackoverflow.com/questions/tagged/r?tab=Newest)
+
+But be sure to use search with the `[r]` or `[rstats]` tags to find R specific information.
+
+## R Related news
+
+* search ![](images/twitter.svg) with the hashtag [`#rstats`](https://twitter.com/search?q=%23rstats)
+* [The R Journal](https://journal.r-project.org/)
+* [![](images/R-bloggers.png)](https://www.r-bloggers.com/)
+
+## Next Up {.flexbox .vcenter}
+
+**[Syntax](03-Syntax.html)**
+

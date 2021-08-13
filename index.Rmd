@@ -14,9 +14,9 @@ This webpage will be your guide to this course. Please Start by reading the
 
 *Links will be made live after class*
 
-* [Introductions](Introductions.html) [![](images/pdf.png)](pdf/Introductions.pdf)
-* Principles
-* Resources
+* [Introductions](00-Introductions.html) [![](images/pdf.png)](pdf/Introductions.pdf)
+* [Principles](01-Principles.html) [![](images/pdf.png)](pdf/Principles.pdf)
+* [Resources](02-Resources.html) [![](images/pdf.png)](pdf/Resources.pdf)
 * Syntax & Data Structures
 * Packages
 * Tidyverse

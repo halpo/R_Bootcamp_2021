@@ -89,3 +89,8 @@ But just ask because no one knows room numbers down there.
     a. Data cleaning
     b. Table construction
     c. Analyses: t-test, linear models, etc.
+
+## First Up {.flexbox .vcenter}
+
+**[R Principles](01-Principles.html)**
+

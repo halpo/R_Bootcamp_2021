@@ -8,6 +8,7 @@ output:
         theme: "paper"
         css: "style.css"
         keep_md: FALSE
+        df_print: "kable"
         md_extensions:
             - "+task_lists"
             - "+multiline_tables"
@@ -390,8 +391,8 @@ iris
 
 ```{r}
 data.frame(
-    x = 1:100,
-    y = rnorm(100) #< random normals
+    x = 1:4,
+    y = rnorm(4) #< random normals
 )
 ```
 

@@ -17,7 +17,7 @@ This webpage will be your guide to this course. Please Start by reading the
 * [Introductions](00-Introductions.html) [![](images/pdf.png)](pdf/Introductions.pdf)
 * [Principles](01-Principles.html) [![](images/pdf.png)](pdf/Principles.pdf)
 * [Resources](02-Resources.html) [![](images/pdf.png)](pdf/Resources.pdf)
-* Syntax & Data Structures
+* [Syntax & Data Structures](03-Syntax.html) [![](images/pdf.png)](pdf/Syntax.pdf)
 * Packages
 * Tidyverse
 * Getting Data

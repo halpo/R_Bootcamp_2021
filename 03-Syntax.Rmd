@@ -265,17 +265,27 @@ An object's class given information about what the class is supposed to be or do
 
 The `class()` function gives the object class.
 
+::::::{.columns-2}
+:::{.column}
 ```{r}
 class(1:2)
 class(pi)
 class('Hello Bootcamp')
+```
+:::
+:::{.column}
+```{r}
 class(print)
 class(iris)
 ```
+:::
+::::::
 
 
 ## Basic Types, i.e. Mode 
-:::{.columns-3}
+
+::::::{.columns-2}
+:::{.column}
 * integer
 * numeric
 * logical
@@ -283,13 +293,14 @@ class(iris)
 * list (i.e. anything)
 * *language*
 :::
-
+:::{.column}
 ```{r}
 mode(pi)
 mode(iris)
 mode(print)
 ```
-
+:::
+::::::
 
 ## Vector Operations {.build}
 
@@ -368,6 +379,24 @@ This comes in useful for data.
 > * Rectangular with  and rows as observations.
 >   - columns as variables `ncol(iris)=``r ncol(iris)`
 >   - and rows as observations `nrow(iris)=``r nrow(iris)`
+
+## Example Data: Iris
+
+```{r}
+iris
+```
+
+## Creating Data {.build}
+
+```{r}
+data.frame(
+    x = 1:100,
+    y = rnorm(100) #< random normals
+)
+```
+
+We will discuss tibbles in the Tidyverse slides.
+
 
 # SPECIAL
 

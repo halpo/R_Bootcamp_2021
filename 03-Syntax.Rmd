@@ -1,7 +1,7 @@
 ---
 title: "R Syntax & Data Structures"
 author: "Andrew Redd, PhD."
-date: "R Bootcamp 2020"
+date: "R Bootcamp 2021"
 output:
     ioslides_presentation:
         logo: "images/U_Health_stacked_png_red.png"
@@ -385,3 +385,6 @@ iris %>% #< take iris data
     nrow() #< count the rows.
 ```
 
+## Next Up {.flexbox .vcenter}
+
+**[Packages](04-Packages.html)**

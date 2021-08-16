@@ -1,10 +1,10 @@
 ---
-title: "R Bootcamp 2020"
+title: "R Bootcamp 2021"
 ---
 
 R Users, 
 
-Welcome to R Bootcamp 2020.  
+Welcome to R Bootcamp 2021.  
 
 This webpage will be your guide to this course. Please Start by reading the 
 [Syllabus](syllabus.html)
@@ -18,8 +18,8 @@ This webpage will be your guide to this course. Please Start by reading the
 * [Principles](01-Principles.html) [![](images/pdf.png)](pdf/Principles.pdf)
 * [Resources](02-Resources.html) [![](images/pdf.png)](pdf/Resources.pdf)
 * [Syntax & Data Structures](03-Syntax.html) [![](images/pdf.png)](pdf/Syntax.pdf)
-* [Packages](04-Packages.html) [![](images/pdf.png)](pdf/Syntax.pdf)
-* Tidyverse
+* [Packages](04-Packages.html) [![](images/pdf.png)](pdf/Packages.pdf)
+* [Tidyverse](05-Tidyverse.html) [![](images/pdf.png)](pdf/Tidyverse.pdf)
 * Getting Data
 * Data Wrangling
 * Graphics

@@ -247,3 +247,6 @@ devtools::install('halpo/pivot')
 
 **Of course all this can be acomplished through RStudio a bit easier.**
 
+## Next Up {.flexbox .vcenter}
+
+**[Tidyverse](04-Packages.html)**

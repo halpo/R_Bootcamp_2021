@@ -33,7 +33,7 @@ This webpage will be your guide to this course. Please Start by reading the
 
 *Posted as available*
 
-* Day 1
+* [Day 1](https://web.microsoftstream.com/video/e3995b77-2d34-4bd8-94c6-d2c14b0564f1)
 * Day 2
 * Day 3
 * Day 4

@@ -1,3 +1,6 @@
+img {
+    object-fit: contain;
+}
 .fullpage {
     padding:0;
     margin:0;
@@ -14,11 +17,30 @@
     text-align: right;
 }
 .columns-3{
-    -ms-column-count: 3;
-    -webkit-column-count: 3;
-    -moz-column-count: 3;
+    display:table;
     column-count: 3;
 }
+.columns-2{
+    display:table;
+    width: 100%;
+}
+.columns {
+    display:table;
+}
+.columns .column {
+    display: table-cell;
+    width: unset;
+}
+.columns-2 .column{
+    display: table-cell;
+    width: 50%;
+}
+.columns-3 .column{
+    display: table-cell;
+    width: 33%;
+}
+
+
 h3{
     border-bottom: solid;
     margin-top: .5em;

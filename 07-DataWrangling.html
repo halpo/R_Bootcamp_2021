@@ -1,0 +1,3313 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Data Wrangling</title>
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <meta name="generator" content="pandoc" />
+
+
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+
+  <base target="_blank">
+
+  <script type="text/javascript">
+    var SLIDE_CONFIG = {
+      // Slide settings
+      settings: {
+                title: 'Data Wrangling',
+                        useBuilds: true,
+        usePrettify: true,
+        enableSlideAreas: true,
+        enableTouch: true,
+                        favIcon: '07-DataWrangling_files/logo.png',
+              },
+
+      // Author information
+      presenters: [
+            {
+        name:  'Andrew Redd, PhD.' ,
+        company: '',
+        gplus: '',
+        twitter: '',
+        www: '',
+        github: ''
+      },
+            ]
+    };
+  </script>
+
+  <script type='text/javascript' id='timer-js'>
+  var counts = {};
+  var timers = {};
+  var initial = {};
+  function startTimer() {
+  	//var count = initial;
+  	var trigger = event.target;
+  	var div = trigger.parentNode;
+  	console.log("startTimer triggered by click on " + div.nodeName + "#" + div.id + ">" + trigger.nodeName);
+  	var eid = div.id;
+  	var warning = (div.hasAttribute("warnafter")) ? (+div.getAttribute("warnafter")) : 0;
+  	console.log("eid=" + eid + ", warning=" + warning);
+      if (!(eid in initial)){
+          var p = trigger;
+
+          var init = trigger.innerHTML;
+          console.log("init=" + init);
+
+          var a = init.split(':');
+          initial[eid] = (+a[0])*60 + (+a[1]);
+          console.log("initial[eid]=", initial[eid]);
+      }
+      counts[eid] = initial[eid];
+      if (eid in timers && timers[eid] != 0) {
+          clearInterval(timers[eid]); timers[eid] = 0;
+          var minutes = Math.floor((initial[eid] % (60 * 60)) / (60));
+          var seconds = Math.floor((initial[eid] % (60)));
+          document.getElementById(eid).innerHTML = hms(initial[eid]);
+      } else {
+          timers[eid] = setInterval(function() {
+              // Time calculations for days, hours, minutes and seconds
+              var count = counts[eid] - 1;
+              if (count > 0) {
+                  document.getElementById(eid).innerHTML = hms(count, count <= warning);
+              } else {
+                  document.getElementById(eid).innerHTML = "<p class='timesup'>0:00</p>";
+                  clearInterval(timers[eid]);
+                  timers[eid] = 0;
+              }
+              counts[eid] = count;
+          }, 1000);
+      }
+  };
+  function hms(count, warn) {
+      var leading = ''
+      var minutes = Math.floor((count % (60 * 60)) / (60));
+      var seconds = Math.floor((count % (60)));
+      if (seconds <= 9){
+          leading = "0";
+      }
+      var start;
+      if (warn) {
+          start = "<p class='warning'>";
+      } else {
+          start = "<p>";
+      }
+      return start + minutes + ":" + leading +  seconds + "</p>";
+  };
+  </script>
+  <script src="site_libs/header-attrs-2.8/header-attrs.js"></script>
+  <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="site_libs/bootstrap-3.3.5/css/paper.min.css" rel="stylesheet" />
+  <script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+  <script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+  <script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+  <style>h1 {font-size: 34px;}
+         h1.title {font-size: 38px;}
+         h2 {font-size: 30px;}
+         h3 {font-size: 24px;}
+         h4 {font-size: 18px;}
+         h5 {font-size: 16px;}
+         h6 {font-size: 12px;}
+         code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+         pre:not([class]) { background-color: white }</style>
+  <link href="site_libs/ioslides-13.5.1/fonts/fonts.css" rel="stylesheet" />
+  <link href="site_libs/ioslides-13.5.1/theme/css/default.css" rel="stylesheet" />
+  <link href="site_libs/ioslides-13.5.1/theme/css/phone.css" rel="stylesheet" />
+  <script src="site_libs/ioslides-13.5.1/js/modernizr.custom.45394.js"></script>
+  <script src="site_libs/ioslides-13.5.1/js/prettify/prettify.js"></script>
+  <script src="site_libs/ioslides-13.5.1/js/prettify/lang-r.js"></script>
+  <script src="site_libs/ioslides-13.5.1/js/prettify/lang-yaml.js"></script>
+  <script src="site_libs/ioslides-13.5.1/js/hammer.js"></script>
+  <script src="site_libs/ioslides-13.5.1/js/slide-controller.js"></script>
+  <script src="site_libs/ioslides-13.5.1/js/slide-deck.js"></script>
+
+  <style type="text/css">
+
+    b, strong {
+      font-weight: bold;
+    }
+
+    em {
+      font-style: italic;
+    }
+
+    summary {
+      display: list-item;
+    }
+
+    slides > slide {
+      -webkit-transition: all 0.4s ease-in-out;
+      -moz-transition: all 0.4s ease-in-out;
+      -o-transition: all 0.4s ease-in-out;
+      transition: all 0.4s ease-in-out;
+    }
+
+    .auto-fadein {
+      -webkit-transition: opacity 0.6s ease-in;
+      -webkit-transition-delay: 0.4s;
+      -moz-transition: opacity 0.6s ease-in 0.4s;
+      -o-transition: opacity 0.6s ease-in 0.4s;
+      transition: opacity 0.6s ease-in 0.4s;
+      opacity: 0;
+    }
+/* https://github.com/ropensci/plotly/pull/524#issuecomment-468142578 */
+slide:not(.current) .plotly.html-widget{
+  display: block;
+}
+
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+            pre > code.sourceCode { white-space: pre; position: relative; }
+            pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+            pre > code.sourceCode > span:empty { height: 1.2em; }
+            .sourceCode { overflow: visible; }
+            code.sourceCode > span { color: inherit; text-decoration: inherit; }
+            div.sourceCode { margin: 1em 0; }
+            pre.sourceCode { margin: 0; }
+            @media screen {
+            div.sourceCode { overflow: auto; }
+            }
+            @media print {
+            pre > code.sourceCode { white-space: pre-wrap; }
+            pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+            }
+            pre.numberSource code
+              { counter-reset: source-line 0; }
+            pre.numberSource code > span
+              { position: relative; left: -4em; counter-increment: source-line; }
+            pre.numberSource code > span > a:first-child::before
+              { content: counter(source-line);
+                position: relative; left: -1em; text-align: right; vertical-align: baseline;
+                border: none; display: inline-block;
+                -webkit-touch-callout: none; -webkit-user-select: none;
+                -khtml-user-select: none; -moz-user-select: none;
+                -ms-user-select: none; user-select: none;
+                padding: 0 4px; width: 4em;
+                color: #aaaaaa;
+              }
+            pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+            div.sourceCode
+              {   }
+            @media screen {
+            pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+            }
+            code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+            code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+            code span.at { color: #7d9029; } /* Attribute */
+            code span.bn { color: #40a070; } /* BaseN */
+            code span.bu { } /* BuiltIn */
+            code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+            code span.ch { color: #4070a0; } /* Char */
+            code span.cn { color: #880000; } /* Constant */
+            code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+            code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+            code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+            code span.dt { color: #902000; } /* DataType */
+            code span.dv { color: #40a070; } /* DecVal */
+            code span.er { color: #ff0000; font-weight: bold; } /* Error */
+            code span.ex { } /* Extension */
+            code span.fl { color: #40a070; } /* Float */
+            code span.fu { color: #06287e; } /* Function */
+            code span.im { } /* Import */
+            code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+            code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+            code span.op { color: #666666; } /* Operator */
+            code span.ot { color: #007020; } /* Other */
+            code span.pp { color: #bc7a00; } /* Preprocessor */
+            code span.sc { color: #4070a0; } /* SpecialChar */
+            code span.ss { color: #bb6688; } /* SpecialString */
+            code span.st { color: #4070a0; } /* String */
+            code span.va { color: #19177c; } /* Variable */
+            code span.vs { color: #4070a0; } /* VerbatimString */
+            code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+        
+    slides > slide:not(.nobackground):before {
+      font-size: 12pt;
+      content: "";
+      position: absolute;
+      bottom: 20px;
+      left: 60px;
+      background: url(07-DataWrangling_files/logo.png) no-repeat 0 50%;
+      -webkit-background-size: 30px 30px;
+      -moz-background-size: 30px 30px;
+      -o-background-size: 30px 30px;
+      background-size: 30px 30px;
+      padding-left: 40px;
+      height: 30px;
+      line-height: 1.9;
+    }
+  </style>
+
+  <link rel="stylesheet" href="style.css" type="text/css" />
+
+</head>
+
+<body style="opacity: 0">
+
+<slides class="layout-widescreen">
+
+  <slide class="title-slide segue nobackground">
+        <aside class="gdbar"><img src="07-DataWrangling_files/logo.png"></aside>
+        <!-- The content of this hgroup is replaced programmatically through the slide_config.json. -->
+    <hgroup class="auto-fadein">
+      <h1 data-config-title><!-- populated from slide_config.json --></h1>
+      
+      <p data-config-presenter><!-- populated from slide_config.json --></p>
+            <p style="margin-top: 6px; margin-left: -2px;">R Bootcamp 2020</p>
+          </hgroup>
+  </slide>
+
+<slide class="segue dark nobackground level1"><hgroup class = 'auto-fadein'><h2></h2></hgroup><article  id="section">
+
+<img src='images/data_wrangler.png' title=''/>
+
+</article></slide><slide class=""><hgroup><h2>Manipulations</h2></hgroup><article  id="manipulations">
+
+<ul>
+<li>Data integrity</li>
+<li>Reshaping</li>
+<li>Filtering</li>
+<li>Merging</li>
+<li>Summarizing</li>
+</ul>
+
+</article></slide><slide class=""><hgroup><h2>Packages that we will need</h2></hgroup><article  id="packages-that-we-will-need">
+
+<pre class = 'prettyprint lang-r'># Make tidyverse load quietly
+options(tidyverse.quiet = TRUE)
+library(tidyverse)   #&lt; General use
+library(tidyr)       #&lt; Reshaping
+library(wbstats)     #&lt; World bank data.
+library(countrycode) #&lt; Country coding
+library(assertthat)  #&lt; Results checking
+library(lubridate)   #&lt; Date manipulations</pre>
+
+</article></slide><slide class=""><hgroup><h2>Loading data</h2></hgroup><article  id="loading-data">
+
+<p>for <code>.RData</code> files use <code>load()</code></p>
+
+<pre class = 'prettyprint lang-r'>load(&quot;data/covid.data.wide.dfr.RData&quot;)</pre>
+
+<p>for <code>.rds</code> files use <code>readRDS()</code> and capture the results in a variable.</p>
+
+<pre class = 'prettyprint lang-r'>data &lt;- readRDS(&quot;data/covid.data.wide.dfr.rds&quot;)</pre>
+
+</article></slide><slide class=""><hgroup><h2>Always check your data</h2></hgroup><article  class="build" id="always-check-your-data">
+
+<p>Any problems with the data?</p>
+
+<img src='images/shock.gif' title=''/>
+
+</article></slide><slide class=""><hgroup><h2>1st problem: Reshaping data</h2></hgroup><article  id="st-problem-reshaping-data">
+
+<ul>
+<li>Wide Data
+
+<ul>
+<li>multiple observations for one unit are in columns</li>
+</ul></li>
+<li>Long Data
+
+<ul>
+<li>multiple observations for one unit are in rows.</li>
+</ul></li>
+</ul>
+
+</article></slide><slide class=""><hgroup><h2>Wide &lt;-&gt; Long</h2></hgroup><article  class="build" id="wide---long">
+
+<p>use <a href='https://rdocumentation.org/packages/tidyr/versions/1.1.3/topics/pivot_longer' title=''><code>tidyr::pivot_longer()</code></a> or <a href='https://rdocumentation.org/packages/tidyr/versions/1.1.3/topics/pivot_wider' title=''><code>tidyr::pivot_wider()</code></a>.</p>
+
+<pre class = 'prettyprint lang-r'>covid.data.long.1 &lt;- 
+tidyr::pivot_longer( covid.data.wide.dfr
+                   , cols=matches(&quot;\\d+/\\d+/\\d+&quot;)
+                   , names_to=&quot;Date&quot;
+                   , values_to=&quot;Count&quot;)</pre>
+
+</article></slide><slide class=""><hgroup><h2></h2></hgroup><article >
+
+<pre class = 'prettyprint lang-r'>glimpse(covid.data.long.1)</pre>
+
+<pre >## Rows: 359,115
+## Columns: 7
+## $ file             &lt;chr&gt; &quot;data/confirmed.csv&quot;, &quot;data/confi~
+## $ `Province/State` &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+## $ `Country/Region` &lt;chr&gt; &quot;Afghanistan&quot;, &quot;Afghanistan&quot;, &quot;Af~
+## $ Lat              &lt;dbl&gt; 33.93911, 33.93911, 33.93911, 33.~
+## $ Long             &lt;dbl&gt; 67.70995, 67.70995, 67.70995, 67.~
+## $ Date             &lt;chr&gt; &quot;1/22/20&quot;, &quot;1/23/20&quot;, &quot;1/24/20&quot;, ~
+## $ Count            &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ~</pre>
+
+</article></slide><slide class=""><hgroup><h2>2nd problem: fixing variables</h2></hgroup><article  class="build" id="nd-problem-fixing-variables">
+
+<p>Tasks:</p>
+
+<ol>
+<li>Convert file names to better categories</li>
+<li>Fix date to be an actual date</li>
+</ol>
+
+<ul>
+<li>Use
+
+<ul>
+<li><a href='https://www.rdocumentation.org/packages/dplyr/versions/0.7.8/topics/mutate' title=''><code>mutate</code></a> to add/alter variables,</li>
+<li><a href='https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/grep' title=''><code>gsub</code></a> with <a href='https://cheatography.com/davechild/cheat-sheets/regular-expressions/' title=''>regular expressions</a> for string manipulation,</li>
+<li>and <a href='https://www.rdocumentation.org/packages/lubridate/versions/1.7.10' title=''><code>lubridate</code></a> for dates.</li>
+</ul></li>
+</ul>
+
+</article></slide><slide class=""><hgroup><h2><code>mutate()</code> variants</h2></hgroup><article  id="mutate-variants">
+
+<ul>
+<li><code>mutate()</code> - modify/add variables</li>
+<li><code>mutate_at()</code> - modify a set of variables.</li>
+<li><code>mutate_if()</code> - modify variables meeting a criteria</li>
+<li><code>transmute()</code> - create a new set of variables based on previous.</li>
+</ul>
+
+</article></slide><slide class=""><hgroup><h2>Make COVID data Long</h2></hgroup><article  id="make-covid-data-long">
+
+<pre class = 'prettyprint lang-r'>covid.data.long.2 &lt;-
+    mutate( covid.data.long.1
+          # Add Metric derived from file
+          , Metric = file %&gt;% basename() %&gt;% gsub(&quot;.csv&quot;, &quot;&quot;, ., fixed=TRUE)
+          # Alter Date in place
+          , Date = lubridate::mdy(Date)
+          )</pre>
+
+</article></slide><slide class=""><hgroup><h2></h2></hgroup><article >
+
+<pre class = 'prettyprint lang-r'>glimpse(covid.data.long.2)</pre>
+
+<pre >## Rows: 359,115
+## Columns: 8
+## $ file             &lt;chr&gt; &quot;data/confirmed.csv&quot;, &quot;data/confi~
+## $ `Province/State` &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+## $ `Country/Region` &lt;chr&gt; &quot;Afghanistan&quot;, &quot;Afghanistan&quot;, &quot;Af~
+## $ Lat              &lt;dbl&gt; 33.93911, 33.93911, 33.93911, 33.~
+## $ Long             &lt;dbl&gt; 67.70995, 67.70995, 67.70995, 67.~
+## $ Date             &lt;date&gt; 2020-01-22, 2020-01-23, 2020-01-~
+## $ Count            &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ~
+## $ Metric           &lt;chr&gt; &quot;confirmed&quot;, &quot;confirmed&quot;, &quot;confir~</pre>
+
+</article></slide><slide class=""><hgroup><h2>Now make it wider</h2></hgroup><article  id="now-make-it-wider">
+
+<pre class = 'prettyprint lang-r'>covid.data.long.3 &lt;- 
+    covid.data.long.2 %&gt;% 
+    tidyr::pivot_wider(names_from=Metric, values_from=Count)</pre>
+
+</article></slide><slide class=""><hgroup><h2></h2></hgroup><article >
+
+<pre class = 'prettyprint lang-r'>glimpse(covid.data.long.3)</pre>
+
+<pre >## Rows: 359,115
+## Columns: 9
+## $ file             &lt;chr&gt; &quot;data/confirmed.csv&quot;, &quot;data/confi~
+## $ `Province/State` &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+## $ `Country/Region` &lt;chr&gt; &quot;Afghanistan&quot;, &quot;Afghanistan&quot;, &quot;Af~
+## $ Lat              &lt;dbl&gt; 33.93911, 33.93911, 33.93911, 33.~
+## $ Long             &lt;dbl&gt; 67.70995, 67.70995, 67.70995, 67.~
+## $ Date             &lt;date&gt; 2020-01-22, 2020-01-23, 2020-01-~
+## $ confirmed        &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ~
+## $ deaths           &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~
+## $ recovered        &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, N~</pre>
+
+</article></slide><slide class=""><hgroup><h2><code>select()</code> - Choosing variables</h2></hgroup><article  id="select---choosing-variables">
+
+<div class="keyfunction">
+<p>Use <code>select()</code> to choose the variables desired.</p></div>
+
+<h3>Basic Usage</h3>
+
+<pre class = 'prettyprint lang-r'>select(data, ...)</pre>
+
+<p>Over the next few examples we will explore the forms <code>...</code> can take</p>
+
+</article></slide><slide class=""><hgroup><h2><code>select()</code> - Variable Names</h2></hgroup><article  id="select---variable-names">
+
+<p>the easiest is with variable names:</p>
+
+<pre class = 'prettyprint lang-r'>covid.data.long.2 %&gt;% 
+    select(`Country/Region`, `Province/State`
+          , Date, Metric, Count) %&gt;% 
+    head</pre>
+
+<table class = 'rmdtable'>
+<tr class="header">
+<th align="left">Country/Region</th>
+<th align="left">Province/State</th>
+<th align="left">Date</th>
+<th align="left">Metric</th>
+<th align="right">Count</th>
+</tr>
+<tr class="odd">
+<td align="left">Afghanistan</td>
+<td align="left">NA</td>
+<td align="left">2020-01-22</td>
+<td align="left">confirmed</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">Afghanistan</td>
+<td align="left">NA</td>
+<td align="left">2020-01-23</td>
+<td align="left">confirmed</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">Afghanistan</td>
+<td align="left">NA</td>
+<td align="left">2020-01-24</td>
+<td align="left">confirmed</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">Afghanistan</td>
+<td align="left">NA</td>
+<td align="left">2020-01-25</td>
+<td align="left">confirmed</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">Afghanistan</td>
+<td align="left">NA</td>
+<td align="left">2020-01-26</td>
+<td align="left">confirmed</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">Afghanistan</td>
+<td align="left">NA</td>
+<td align="left">2020-01-27</td>
+<td align="left">confirmed</td>
+<td align="right">0</td>
+</tr>
+</table>
+
+</article></slide><slide class=""><hgroup><h2><code>select()</code> - Dropping by Variable Names</h2></hgroup><article  id="select---dropping-by-variable-names">
+
+<p>You can select everything <strong>but</strong> a variable with the minus operator</p>
+
+<pre class = 'prettyprint lang-r'>covid.data.long.2 %&gt;% select(-file) %&gt;% head()</pre>
+
+<table class = 'rmdtable'>
+<tr class="header">
+<th align="left">Province/State</th>
+<th align="left">Country/Region</th>
+<th align="right">Lat</th>
+<th align="right">Long</th>
+<th align="left">Date</th>
+<th align="right">Count</th>
+<th align="left">Metric</th>
+</tr>
+<tr class="odd">
+<td align="left">NA</td>
+<td align="left">Afghanistan</td>
+<td align="right">33.93911</td>
+<td align="right">67.70995</td>
+<td align="left">2020-01-22</td>
+<td align="right">0</td>
+<td align="left">confirmed</td>
+</tr>
+<tr class="even">
+<td align="left">NA</td>
+<td align="left">Afghanistan</td>
+<td align="right">33.93911</td>
+<td align="right">67.70995</td>
+<td align="left">2020-01-23</td>
+<td align="right">0</td>
+<td align="left">confirmed</td>
+</tr>
+<tr class="odd">
+<td align="left">NA</td>
+<td align="left">Afghanistan</td>
+<td align="right">33.93911</td>
+<td align="right">67.70995</td>
+<td align="left">2020-01-24</td>
+<td align="right">0</td>
+<td align="left">confirmed</td>
+</tr>
+<tr class="even">
+<td align="left">NA</td>
+<td align="left">Afghanistan</td>
+<td align="right">33.93911</td>
+<td align="right">67.70995</td>
+<td align="left">2020-01-25</td>
+<td align="right">0</td>
+<td align="left">confirmed</td>
+</tr>
+<tr class="odd">
+<td align="left">NA</td>
+<td align="left">Afghanistan</td>
+<td align="right">33.93911</td>
+<td align="right">67.70995</td>
+<td align="left">2020-01-26</td>
+<td align="right">0</td>
+<td align="left">confirmed</td>
+</tr>
+<tr class="even">
+<td align="left">NA</td>
+<td align="left">Afghanistan</td>
+<td align="right">33.93911</td>
+<td align="right">67.70995</td>
+<td align="left">2020-01-27</td>
+<td align="right">0</td>
+<td align="left">confirmed</td>
+</tr>
+</table>
+
+</article></slide><slide class=""><hgroup><h2><code>select()</code> - By the numbers</h2></hgroup><article  id="select---by-the-numbers">
+
+<p>You can select by variable position as well.</p>
+
+<pre class = 'prettyprint lang-r'>covid.data.long.3 %&gt;% select(2, 3, 6:9) %&gt;% head()</pre>
+
+<table class = 'rmdtable'>
+<tr class="header">
+<th align="left">Province/State</th>
+<th align="left">Country/Region</th>
+<th align="left">Date</th>
+<th align="right">confirmed</th>
+<th align="right">deaths</th>
+<th align="right">recovered</th>
+</tr>
+<tr class="odd">
+<td align="left">NA</td>
+<td align="left">Afghanistan</td>
+<td align="left">2020-01-22</td>
+<td align="right">0</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+</tr>
+<tr class="even">
+<td align="left">NA</td>
+<td align="left">Afghanistan</td>
+<td align="left">2020-01-23</td>
+<td align="right">0</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">NA</td>
+<td align="left">Afghanistan</td>
+<td align="left">2020-01-24</td>
+<td align="right">0</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+</tr>
+<tr class="even">
+<td align="left">NA</td>
+<td align="left">Afghanistan</td>
+<td align="left">2020-01-25</td>
+<td align="right">0</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">NA</td>
+<td align="left">Afghanistan</td>
+<td align="left">2020-01-26</td>
+<td align="right">0</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+</tr>
+<tr class="even">
+<td align="left">NA</td>
+<td align="left">Afghanistan</td>
+<td align="left">2020-01-27</td>
+<td align="right">0</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+</tr>
+</table>
+
+</article></slide><slide class=""><hgroup><h2><code>select()</code> - by variable range</h2></hgroup><article  id="select---by-variable-range">
+
+<p>Use single colon <code>:</code> with variable names to select variables named and eveything in between:</p>
+
+<pre class = 'prettyprint lang-r'>covid.data.long.3 %&gt;% 
+    select(`Province/State`, `Country/Region`, Date
+          , confirmed:recovered) %&gt;% head()</pre>
+
+<table class = 'rmdtable'>
+<tr class="header">
+<th align="left">Province/State</th>
+<th align="left">Country/Region</th>
+<th align="left">Date</th>
+<th align="right">confirmed</th>
+<th align="right">deaths</th>
+<th align="right">recovered</th>
+</tr>
+<tr class="odd">
+<td align="left">NA</td>
+<td align="left">Afghanistan</td>
+<td align="left">2020-01-22</td>
+<td align="right">0</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+</tr>
+<tr class="even">
+<td align="left">NA</td>
+<td align="left">Afghanistan</td>
+<td align="left">2020-01-23</td>
+<td align="right">0</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">NA</td>
+<td align="left">Afghanistan</td>
+<td align="left">2020-01-24</td>
+<td align="right">0</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+</tr>
+<tr class="even">
+<td align="left">NA</td>
+<td align="left">Afghanistan</td>
+<td align="left">2020-01-25</td>
+<td align="right">0</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">NA</td>
+<td align="left">Afghanistan</td>
+<td align="left">2020-01-26</td>
+<td align="right">0</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+</tr>
+<tr class="even">
+<td align="left">NA</td>
+<td align="left">Afghanistan</td>
+<td align="left">2020-01-27</td>
+<td align="right">0</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+</tr>
+</table>
+
+</article></slide><slide class=""><hgroup><h2><code>select()</code> - by helpers</h2></hgroup><article  id="select---by-helpers">
+
+<p>selection helpers are also provided:</p>
+
+<pre class = 'prettyprint lang-r'>covid.data.long.3 %&gt;% select(contains(&quot;/&quot;)) %&gt;% head()</pre>
+
+<table class = 'rmdtable'>
+<tr class="header">
+<th align="left">Province/State</th>
+<th align="left">Country/Region</th>
+</tr>
+<tr class="odd">
+<td align="left">NA</td>
+<td align="left">Afghanistan</td>
+</tr>
+<tr class="even">
+<td align="left">NA</td>
+<td align="left">Afghanistan</td>
+</tr>
+<tr class="odd">
+<td align="left">NA</td>
+<td align="left">Afghanistan</td>
+</tr>
+<tr class="even">
+<td align="left">NA</td>
+<td align="left">Afghanistan</td>
+</tr>
+<tr class="odd">
+<td align="left">NA</td>
+<td align="left">Afghanistan</td>
+</tr>
+<tr class="even">
+<td align="left">NA</td>
+<td align="left">Afghanistan</td>
+</tr>
+</table>
+
+</article></slide><slide class=""><hgroup><h2><code>select()</code> - The helpers</h2></hgroup><article  id="select---the-helpers">
+
+<p>The available helpers are:</p>
+
+<ul>
+<li><code>starts_with()</code></li>
+<li><code>ends_with()</code></li>
+<li><code>contains()</code> - must match literally</li>
+<li><code>matches()</code> - Regular expression match</li>
+<li><code>num_range()</code> - numerical ranged variables with a prefix</li>
+<li><code>all_of()</code> - must match all of given variables named in a vector.</li>
+<li><code>any_of()</code> - select any variables present in given vector, but no error if not present.</li>
+<li><code>everything()</code> - Matches all variables, useful when reordering variables.</li>
+<li><code>last_col()</code> - The last column</li>
+</ul>
+
+</article></slide><slide class=""><hgroup><h2><code>select()</code> - Multiple</h2></hgroup><article  id="select---multiple">
+
+<p>You may use multiple forms together.</p>
+
+<pre class = 'prettyprint lang-r'>covid.data.long.3 %&gt;% 
+    select(2:3, where(is.Date), confirmed:recovered) %&gt;% 
+    head()</pre>
+
+<table class = 'rmdtable'>
+<tr class="header">
+<th align="left">Province/State</th>
+<th align="left">Country/Region</th>
+<th align="left">Date</th>
+<th align="right">confirmed</th>
+<th align="right">deaths</th>
+<th align="right">recovered</th>
+</tr>
+<tr class="odd">
+<td align="left">NA</td>
+<td align="left">Afghanistan</td>
+<td align="left">2020-01-22</td>
+<td align="right">0</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+</tr>
+<tr class="even">
+<td align="left">NA</td>
+<td align="left">Afghanistan</td>
+<td align="left">2020-01-23</td>
+<td align="right">0</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">NA</td>
+<td align="left">Afghanistan</td>
+<td align="left">2020-01-24</td>
+<td align="right">0</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+</tr>
+<tr class="even">
+<td align="left">NA</td>
+<td align="left">Afghanistan</td>
+<td align="left">2020-01-25</td>
+<td align="right">0</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">NA</td>
+<td align="left">Afghanistan</td>
+<td align="left">2020-01-26</td>
+<td align="right">0</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+</tr>
+<tr class="even">
+<td align="left">NA</td>
+<td align="left">Afghanistan</td>
+<td align="left">2020-01-27</td>
+<td align="right">0</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+</tr>
+</table>
+
+</article></slide><slide class=""><hgroup><h2>Subsetting data</h2></hgroup><article  class="build" id="subsetting-data">
+
+<div class="keyfunction">
+<p>Subset data with the <code>filter()</code> function.</p></div>
+
+<p>The base R version is subset, but it is FAR less robust.</p>
+
+<p>It takes the form of</p>
+
+<pre class = 'prettyprint lang-r'>filter(data, expr1, expr2, ...)</pre>
+
+<p>where <code>data</code> is the data set, and <code>expr1</code>, <code>expr2</code>, … are the criteria expressions evaluated <em>in the context of the data</em>. Data must meet <em>all</em> ctriteria to remain.</p>
+
+</article></slide><slide class=""><hgroup><h2><code>filter()</code> Example</h2></hgroup><article  id="filter-example">
+
+<p>Subset data to only confirmed cases for Nigeria.</p>
+
+<pre class = 'prettyprint lang-r'>covid.data.long.3 %&gt;% 
+    select(2:3, Date:recovered) %&gt;% 
+    filter( `Country/Region` == &quot;US&quot;) %&gt;% 
+    head()</pre>
+
+<table class = 'rmdtable'>
+<tr class="header">
+<th align="left">Province/State</th>
+<th align="left">Country/Region</th>
+<th align="left">Date</th>
+<th align="right">confirmed</th>
+<th align="right">deaths</th>
+<th align="right">recovered</th>
+</tr>
+<tr class="odd">
+<td align="left">NA</td>
+<td align="left">US</td>
+<td align="left">2020-01-22</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+</tr>
+<tr class="even">
+<td align="left">NA</td>
+<td align="left">US</td>
+<td align="left">2020-01-23</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">NA</td>
+<td align="left">US</td>
+<td align="left">2020-01-24</td>
+<td align="right">2</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+</tr>
+<tr class="even">
+<td align="left">NA</td>
+<td align="left">US</td>
+<td align="left">2020-01-25</td>
+<td align="right">2</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">NA</td>
+<td align="left">US</td>
+<td align="left">2020-01-26</td>
+<td align="right">5</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+</tr>
+<tr class="even">
+<td align="left">NA</td>
+<td align="left">US</td>
+<td align="left">2020-01-27</td>
+<td align="right">5</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+</tr>
+</table>
+
+</article></slide><slide class=""><hgroup><h2><code>filter()</code> Or</h2></hgroup><article  id="filter-or">
+
+<p>to perform an <code>or</code> use the single <code>|</code></p>
+
+<pre class = 'prettyprint lang-r'>covid.data.long.3 %&gt;% 
+    select(2:3, Date:recovered) %&gt;% 
+    filter( (`Country/Region` == &quot;US&quot;) | (`Country/Region` == &quot;Canada&quot;)
+          ) %&gt;% head()</pre>
+
+<table class = 'rmdtable'>
+<tr class="header">
+<th align="left">Province/State</th>
+<th align="left">Country/Region</th>
+<th align="left">Date</th>
+<th align="right">confirmed</th>
+<th align="right">deaths</th>
+<th align="right">recovered</th>
+</tr>
+<tr class="odd">
+<td align="left">Alberta</td>
+<td align="left">Canada</td>
+<td align="left">2020-01-22</td>
+<td align="right">0</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+</tr>
+<tr class="even">
+<td align="left">Alberta</td>
+<td align="left">Canada</td>
+<td align="left">2020-01-23</td>
+<td align="right">0</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">Alberta</td>
+<td align="left">Canada</td>
+<td align="left">2020-01-24</td>
+<td align="right">0</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+</tr>
+<tr class="even">
+<td align="left">Alberta</td>
+<td align="left">Canada</td>
+<td align="left">2020-01-25</td>
+<td align="right">0</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">Alberta</td>
+<td align="left">Canada</td>
+<td align="left">2020-01-26</td>
+<td align="right">0</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+</tr>
+<tr class="even">
+<td align="left">Alberta</td>
+<td align="left">Canada</td>
+<td align="left">2020-01-27</td>
+<td align="right">0</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+</tr>
+</table>
+
+</article></slide><slide class=""><hgroup><h2><code>filter()</code> and</h2></hgroup><article  id="filter-and">
+
+<p>Independent statements to filter are combined assuming an <code>and</code>. You can make an and explicit with a <code>&amp;</code>.</p>
+
+<p>an alternate form would be to use <code>%in%</code></p>
+
+<pre class = 'prettyprint lang-r'>covid.data.long.3 %&gt;% 
+    select(2:3, Date:recovered) %&gt;% 
+    filter( `Country/Region` %in% c(&#39;US&#39;, &#39;Canada&#39;, &#39;Mexico&#39;)
+          , is.na(`Province/State`)
+          ) %&gt;% head()</pre>
+
+<table class = 'rmdtable'>
+<tr class="header">
+<th align="left">Province/State</th>
+<th align="left">Country/Region</th>
+<th align="left">Date</th>
+<th align="right">confirmed</th>
+<th align="right">deaths</th>
+<th align="right">recovered</th>
+</tr>
+<tr class="odd">
+<td align="left">NA</td>
+<td align="left">Mexico</td>
+<td align="left">2020-01-22</td>
+<td align="right">0</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+</tr>
+<tr class="even">
+<td align="left">NA</td>
+<td align="left">Mexico</td>
+<td align="left">2020-01-23</td>
+<td align="right">0</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">NA</td>
+<td align="left">Mexico</td>
+<td align="left">2020-01-24</td>
+<td align="right">0</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+</tr>
+<tr class="even">
+<td align="left">NA</td>
+<td align="left">Mexico</td>
+<td align="left">2020-01-25</td>
+<td align="right">0</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">NA</td>
+<td align="left">Mexico</td>
+<td align="left">2020-01-26</td>
+<td align="right">0</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+</tr>
+<tr class="even">
+<td align="left">NA</td>
+<td align="left">Mexico</td>
+<td align="left">2020-01-27</td>
+<td align="right">0</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+</tr>
+</table>
+
+</article></slide><slide class=""><hgroup><h2><code>distinct()</code> - normalizing</h2></hgroup><article  class="build" id="distinct---normalizing">
+
+<p>From the previous filter example note that report date is repeated week after week.<br/>:::{.keyfunction} To get only distinct observations, use <code>distinct()</code>. :::</p>
+
+</article></slide><slide class=""><hgroup><h2><code>distinct()</code> - normalizing</h2></hgroup><article  class="build" id="distinct---normalizing-1">
+
+<pre class = 'prettyprint lang-r'>covid.data.long.3 %&gt;% 
+    filter( `Country/Region` %in% c(&#39;US&#39;, &#39;Canada&#39;, &#39;Mexico&#39;)
+          , is.na(`Province/State`)
+          ) %&gt;%
+    select(2:3) %&gt;% 
+    distinct()</pre>
+
+<table class = 'rmdtable'>
+<tr class="header">
+<th align="left">Province/State</th>
+<th align="left">Country/Region</th>
+</tr>
+<tr class="odd">
+<td align="left">NA</td>
+<td align="left">Mexico</td>
+</tr>
+<tr class="even">
+<td align="left">NA</td>
+<td align="left">US</td>
+</tr>
+<tr class="odd">
+<td align="left">NA</td>
+<td align="left">Canada</td>
+</tr>
+</table>
+
+</article></slide><slide class=""><hgroup><h2>Sorting Data</h2></hgroup><article  id="sorting-data">
+
+<div class="keyfunction">
+<p>To sort data use <code>arrange()</code></p></div>
+
+<p><code>sort()</code> is the base version but again, less robust.</p>
+
+<p>Arrange allows you to give sorting criteria.</p>
+
+</article></slide><slide class=""><hgroup><h2><code>arrange()</code> Example</h2></hgroup><article  id="arrange-example">
+
+<pre class = 'prettyprint lang-r'>covid.data.long.2 %&gt;% 
+    arrange(`Country/Region`, `Province/State`, Date) %&gt;%
+    select(2:3, Date, Metric, Count) %&gt;% 
+    head()</pre>
+
+<table class = 'rmdtable'>
+<tr class="header">
+<th align="left">Province/State</th>
+<th align="left">Country/Region</th>
+<th align="left">Date</th>
+<th align="left">Metric</th>
+<th align="right">Count</th>
+</tr>
+<tr class="odd">
+<td align="left">NA</td>
+<td align="left">Afghanistan</td>
+<td align="left">2020-01-22</td>
+<td align="left">confirmed</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">NA</td>
+<td align="left">Afghanistan</td>
+<td align="left">2020-01-22</td>
+<td align="left">deaths</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">NA</td>
+<td align="left">Afghanistan</td>
+<td align="left">2020-01-22</td>
+<td align="left">recovered</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">NA</td>
+<td align="left">Afghanistan</td>
+<td align="left">2020-01-23</td>
+<td align="left">confirmed</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">NA</td>
+<td align="left">Afghanistan</td>
+<td align="left">2020-01-23</td>
+<td align="left">deaths</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">NA</td>
+<td align="left">Afghanistan</td>
+<td align="left">2020-01-23</td>
+<td align="left">recovered</td>
+<td align="right">0</td>
+</tr>
+</table>
+
+</article></slide><slide class=""><hgroup><h2>Combining data</h2></hgroup><article  id="combining-data">
+
+<div class="keyfunction">
+<p>Use the <strong><code>join</code></strong> family of functions to merge data together:</p>
+
+<ul>
+<li><code>inner_join(a, b)</code> - keep only rows that match both <code>a</code> and <code>b</code>.</li>
+<li><code>left_join(a, b)</code> - keep all rows of <code>a</code> and add columns in <code>b</code> to the rows that match. Unmatched rows will contain missing values.</li>
+<li><code>right_join(a, b)</code> - same as left but swap <code>a</code> and <code>b</code>.</li>
+<li><code>full_join(a, b)</code> - keep all rows of both <code>a</code> and <code>b</code>.</li>
+<li><code>semi_join(a, b)</code> - keep all rows of <code>a</code> that match <code>b</code>, but don’t add columns from <code>b</code>.</li>
+<li><code>anti_join(a, b)</code> - keep only those rows of <code>a</code> that <strong>don’t</strong> match <code>b</code>.</li>
+</ul></div>
+
+<p>Operations have these parameters:</p>
+
+<ul>
+<li><code>by</code> - variables to join on, defaults to common variables</li>
+<li><code>suffix</code> - sufixes to add to distinguish common variables that are not part of <code>by</code></li>
+</ul>
+
+</article></slide><slide class=""><hgroup><h2>World Bank Data</h2></hgroup><article  id="world-bank-data">
+
+<p>The <code>wbstats</code> package provides access to the world bank database.</p>
+
+<pre class = 'prettyprint lang-r'>library(wbstats)
+wb_search(&#39;population&#39;, extra=TRUE)</pre>
+
+<pre class = 'prettyprint lang-r'>(wb.pop.data &lt;- wb_data(indicator =&quot;SP.POP.TOTL&quot;, start_date = 2020, end_date = 2021))</pre>
+
+<p>Run these commands, investigate the output and then let’s discuss.</p>
+
+</article></slide><slide class=""><hgroup><h2>Example: Add country information to COVID data</h2></hgroup><article  class="build" id="example-add-country-information-to-covid-data">
+
+<p>Which join do we want to use?</p>
+
+<pre class = 'prettyprint lang-r'>covid.data.long.4 &lt;- 
+    left_join(covid.data.long.3, wb.pop.data
+             , by=c(&#39;Country/Region&#39;=&#39;country&#39;)
+             )</pre>
+
+<p>Now we need to investigate…</p>
+
+</article></slide><slide class="segue dark nobackground level1"><hgroup class = 'auto-fadein'><h2>Summarization</h2></hgroup><article  id="summarization">
+
+</article></slide><slide class=""><hgroup><h2>Summarization</h2></hgroup><article  id="summarization-1">
+
+<div class="keyfunction">
+<dl>
+<dt><code>summarise(data, ...)</code></dt>
+<dd><p>Take the data and summarise it by performing the <code>...</code> operations to it.</p></dd>
+</dl></div>
+
+<pre class = 'prettyprint lang-r'>covid.data.long.4 %&gt;% 
+    summarize( `Total` = n()
+             , &#39;N Missing&#39; = sum(is.na(SP.POP.TOTL))
+             , &#39;Number of countries&#39; = n_distinct(`Country/Region`)
+             , &quot;# of Reporting dates&quot; = n_distinct(Date)
+             , max.cases = max(confirmed, na.rm=TRUE)
+             , max.deaths = max(deaths, na.rm=TRUE)
+             )</pre>
+
+<table class = 'rmdtable'>
+<tr class="header">
+<th align="right">Total</th>
+<th align="right">N Missing</th>
+<th align="right">Number of countries</th>
+<th align="right"># of Reporting dates</th>
+<th align="right">max.cases</th>
+<th align="right">max.deaths</th>
+</tr>
+<tr class="odd">
+<td align="right">359115</td>
+<td align="right">36045</td>
+<td align="right">192</td>
+<td align="right">445</td>
+<td align="right">31151495</td>
+<td align="right">561783</td>
+</tr>
+</table>
+
+</article></slide><slide class=""><hgroup><h2>Grouped Summarization</h2></hgroup><article  id="grouped-summarization">
+
+<div class="keyfunction">
+<dl>
+<dt><code>group_by(data, ...)</code></dt>
+<dd><p>Take the data and group it by variables specified in <code>...</code>,<br/>all subsequent operations should be done by group.</p></dd>
+</dl></div>
+
+</article></slide><slide class=""><hgroup><h2>Grouped Summarization</h2></hgroup><article  id="grouped-summarization-1">
+
+<pre class = 'prettyprint lang-r'>covid.data.long.4 %&gt;% 
+    group_by(`Country/Region`) %&gt;% 
+    summarize( `Total` = n()
+             , &#39;N Missing&#39; = sum(is.na(SP.POP.TOTL))
+             , &#39;Number of countries&#39; = n_distinct(`Country/Region`)
+             , &quot;# of Reporting dates&quot; = n_distinct(Date)
+             , max.cases = max(confirmed, na.rm=TRUE)
+             , max.deaths = max(deaths, na.rm=TRUE)
+             )</pre>
+
+<table class = 'rmdtable'>
+<col width="29.729730%" />
+<col width="5.405405%" />
+<col width="9.009009%" />
+<col width="18.018018%" />
+<col width="18.918919%" />
+<col width="9.009009%" />
+<col width="9.909910%" />
+<tr class="header">
+<th align="left">Country/Region</th>
+<th align="right">Total</th>
+<th align="right">N Missing</th>
+<th align="right">Number of countries</th>
+<th align="right"># of Reporting dates</th>
+<th align="right">max.cases</th>
+<th align="right">max.deaths</th>
+</tr>
+<tr class="odd">
+<td align="left">Afghanistan</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">57144</td>
+<td align="right">2521</td>
+</tr>
+<tr class="even">
+<td align="left">Albania</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">128155</td>
+<td align="right">2310</td>
+</tr>
+<tr class="odd">
+<td align="left">Algeria</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">118378</td>
+<td align="right">3126</td>
+</tr>
+<tr class="even">
+<td align="left">Andorra</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">12497</td>
+<td align="right">120</td>
+</tr>
+<tr class="odd">
+<td align="left">Angola</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">23331</td>
+<td align="right">550</td>
+</tr>
+<tr class="even">
+<td align="left">Antigua and Barbuda</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">1197</td>
+<td align="right">30</td>
+</tr>
+<tr class="odd">
+<td align="left">Argentina</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">2517300</td>
+<td align="right">57647</td>
+</tr>
+<tr class="even">
+<td align="left">Armenia</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">202167</td>
+<td align="right">3720</td>
+</tr>
+<tr class="odd">
+<td align="left">Australia</td>
+<td align="right">10680</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">20485</td>
+<td align="right">820</td>
+</tr>
+<tr class="even">
+<td align="left">Austria</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">574755</td>
+<td align="right">9662</td>
+</tr>
+<tr class="odd">
+<td align="left">Azerbaijan</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">283579</td>
+<td align="right">3879</td>
+</tr>
+<tr class="even">
+<td align="left">Bahamas</td>
+<td align="right">1335</td>
+<td align="right">1335</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">9364</td>
+<td align="right">189</td>
+</tr>
+<tr class="odd">
+<td align="left">Bahrain</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">155402</td>
+<td align="right">554</td>
+</tr>
+<tr class="even">
+<td align="left">Bangladesh</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">678937</td>
+<td align="right">9661</td>
+</tr>
+<tr class="odd">
+<td align="left">Barbados</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">3719</td>
+<td align="right">44</td>
+</tr>
+<tr class="even">
+<td align="left">Belarus</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">334863</td>
+<td align="right">2344</td>
+</tr>
+<tr class="odd">
+<td align="left">Belgium</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">922487</td>
+<td align="right">23428</td>
+</tr>
+<tr class="even">
+<td align="left">Belize</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">12485</td>
+<td align="right">318</td>
+</tr>
+<tr class="odd">
+<td align="left">Benin</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">7515</td>
+<td align="right">93</td>
+</tr>
+<tr class="even">
+<td align="left">Bhutan</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">910</td>
+<td align="right">1</td>
+</tr>
+<tr class="odd">
+<td align="left">Bolivia</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">281570</td>
+<td align="right">12442</td>
+</tr>
+<tr class="even">
+<td align="left">Bosnia and Herzegovina</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">181927</td>
+<td align="right">7298</td>
+</tr>
+<tr class="odd">
+<td align="left">Botswana</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">42674</td>
+<td align="right">636</td>
+</tr>
+<tr class="even">
+<td align="left">Brazil</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">13445006</td>
+<td align="right">351334</td>
+</tr>
+<tr class="odd">
+<td align="left">Brunei</td>
+<td align="right">1335</td>
+<td align="right">1335</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">219</td>
+<td align="right">3</td>
+</tr>
+<tr class="even">
+<td align="left">Bulgaria</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">371531</td>
+<td align="right">14351</td>
+</tr>
+<tr class="odd">
+<td align="left">Burkina Faso</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">12956</td>
+<td align="right">152</td>
+</tr>
+<tr class="even">
+<td align="left">Burma</td>
+<td align="right">1335</td>
+<td align="right">1335</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">142572</td>
+<td align="right">3206</td>
+</tr>
+<tr class="odd">
+<td align="left">Burundi</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">3119</td>
+<td align="right">6</td>
+</tr>
+<tr class="even">
+<td align="left">Cabo Verde</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">18629</td>
+<td align="right">177</td>
+</tr>
+<tr class="odd">
+<td align="left">Cambodia</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">4081</td>
+<td align="right">26</td>
+</tr>
+<tr class="even">
+<td align="left">Cameroon</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">61731</td>
+<td align="right">919</td>
+</tr>
+<tr class="odd">
+<td align="left">Canada</td>
+<td align="right">14685</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">389648</td>
+<td align="right">10737</td>
+</tr>
+<tr class="even">
+<td align="left">Central African Republic</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">5491</td>
+<td align="right">74</td>
+</tr>
+<tr class="odd">
+<td align="left">Chad</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">4625</td>
+<td align="right">167</td>
+</tr>
+<tr class="even">
+<td align="left">Chile</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">1068522</td>
+<td align="right">24213</td>
+</tr>
+<tr class="odd">
+<td align="left">China</td>
+<td align="right">44055</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">68154</td>
+<td align="right">4512</td>
+</tr>
+<tr class="even">
+<td align="left">Colombia</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">2518715</td>
+<td align="right">65608</td>
+</tr>
+<tr class="odd">
+<td align="left">Comoros</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">3789</td>
+<td align="right">146</td>
+</tr>
+<tr class="even">
+<td align="left">Congo (Brazzaville)</td>
+<td align="right">1335</td>
+<td align="right">1335</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">10084</td>
+<td align="right">137</td>
+</tr>
+<tr class="odd">
+<td align="left">Congo (Kinshasa)</td>
+<td align="right">1335</td>
+<td align="right">1335</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">28542</td>
+<td align="right">745</td>
+</tr>
+<tr class="even">
+<td align="left">Costa Rica</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">222544</td>
+<td align="right">3018</td>
+</tr>
+<tr class="odd">
+<td align="left">Cote d’Ivoire</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">45089</td>
+<td align="right">260</td>
+</tr>
+<tr class="even">
+<td align="left">Croatia</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">290899</td>
+<td align="right">6269</td>
+</tr>
+<tr class="odd">
+<td align="left">Cuba</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">85572</td>
+<td align="right">453</td>
+</tr>
+<tr class="even">
+<td align="left">Cyprus</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">51035</td>
+<td align="right">272</td>
+</tr>
+<tr class="odd">
+<td align="left">Czechia</td>
+<td align="right">1335</td>
+<td align="right">1335</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">1577972</td>
+<td align="right">27734</td>
+</tr>
+<tr class="even">
+<td align="left">Denmark</td>
+<td align="right">4005</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">237101</td>
+<td align="right">2439</td>
+</tr>
+<tr class="odd">
+<td align="left">Diamond Princess</td>
+<td align="right">1335</td>
+<td align="right">1335</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">712</td>
+<td align="right">13</td>
+</tr>
+<tr class="even">
+<td align="left">Djibouti</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">9722</td>
+<td align="right">94</td>
+</tr>
+<tr class="odd">
+<td align="left">Dominica</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">165</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">Dominican Republic</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">257186</td>
+<td align="right">3385</td>
+</tr>
+<tr class="odd">
+<td align="left">Ecuador</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">344877</td>
+<td align="right">17275</td>
+</tr>
+<tr class="even">
+<td align="left">Egypt</td>
+<td align="right">1335</td>
+<td align="right">1335</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">209677</td>
+<td align="right">12405</td>
+</tr>
+<tr class="odd">
+<td align="left">El Salvador</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">65491</td>
+<td align="right">2048</td>
+</tr>
+<tr class="even">
+<td align="left">Equatorial Guinea</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">7219</td>
+<td align="right">106</td>
+</tr>
+<tr class="odd">
+<td align="left">Eritrea</td>
+<td align="right">1335</td>
+<td align="right">1335</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">3447</td>
+<td align="right">10</td>
+</tr>
+<tr class="even">
+<td align="left">Estonia</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">113736</td>
+<td align="right">1020</td>
+</tr>
+<tr class="odd">
+<td align="left">Eswatini</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">17373</td>
+<td align="right">669</td>
+</tr>
+<tr class="even">
+<td align="left">Ethiopia</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">227255</td>
+<td align="right">3146</td>
+</tr>
+<tr class="odd">
+<td align="left">Fiji</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">68</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="left">Finland</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">81707</td>
+<td align="right">868</td>
+</tr>
+<tr class="odd">
+<td align="left">France</td>
+<td align="right">16020</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">4903965</td>
+<td align="right">97422</td>
+</tr>
+<tr class="even">
+<td align="left">Gabon</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">20636</td>
+<td align="right">127</td>
+</tr>
+<tr class="odd">
+<td align="left">Gambia</td>
+<td align="right">1335</td>
+<td align="right">1335</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">5602</td>
+<td align="right">168</td>
+</tr>
+<tr class="even">
+<td align="left">Georgia</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">287689</td>
+<td align="right">3869</td>
+</tr>
+<tr class="odd">
+<td align="left">Germany</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">3009452</td>
+<td align="right">78402</td>
+</tr>
+<tr class="even">
+<td align="left">Ghana</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">91260</td>
+<td align="right">754</td>
+</tr>
+<tr class="odd">
+<td align="left">Greece</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">293763</td>
+<td align="right">8833</td>
+</tr>
+<tr class="even">
+<td align="left">Grenada</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">155</td>
+<td align="right">1</td>
+</tr>
+<tr class="odd">
+<td align="left">Guatemala</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">202640</td>
+<td align="right">7001</td>
+</tr>
+<tr class="even">
+<td align="left">Guinea</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">20807</td>
+<td align="right">133</td>
+</tr>
+<tr class="odd">
+<td align="left">Guinea-Bissau</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">3678</td>
+<td align="right">66</td>
+</tr>
+<tr class="even">
+<td align="left">Guyana</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">11044</td>
+<td align="right">252</td>
+</tr>
+<tr class="odd">
+<td align="left">Haiti</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">12840</td>
+<td align="right">252</td>
+</tr>
+<tr class="even">
+<td align="left">Holy See</td>
+<td align="right">1335</td>
+<td align="right">1335</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">27</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">Honduras</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">195525</td>
+<td align="right">4770</td>
+</tr>
+<tr class="even">
+<td align="left">Hungary</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">713868</td>
+<td align="right">23211</td>
+</tr>
+<tr class="odd">
+<td align="left">Iceland</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">6258</td>
+<td align="right">29</td>
+</tr>
+<tr class="even">
+<td align="left">India</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">13358805</td>
+<td align="right">169275</td>
+</tr>
+<tr class="odd">
+<td align="left">Indonesia</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">1562868</td>
+<td align="right">42443</td>
+</tr>
+<tr class="even">
+<td align="left">Iran</td>
+<td align="right">1335</td>
+<td align="right">1335</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">2049078</td>
+<td align="right">64232</td>
+</tr>
+<tr class="odd">
+<td align="left">Iraq</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">918155</td>
+<td align="right">14678</td>
+</tr>
+<tr class="even">
+<td align="left">Ireland</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">240643</td>
+<td align="right">4783</td>
+</tr>
+<tr class="odd">
+<td align="left">Israel</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">835813</td>
+<td align="right">6292</td>
+</tr>
+<tr class="even">
+<td align="left">Italy</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">3754077</td>
+<td align="right">113923</td>
+</tr>
+<tr class="odd">
+<td align="left">Jamaica</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">42119</td>
+<td align="right">669</td>
+</tr>
+<tr class="even">
+<td align="left">Japan</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">503537</td>
+<td align="right">9352</td>
+</tr>
+<tr class="odd">
+<td align="left">Jordan</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">662395</td>
+<td align="right">7708</td>
+</tr>
+<tr class="even">
+<td align="left">Kazakhstan</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">320881</td>
+<td align="right">3267</td>
+</tr>
+<tr class="odd">
+<td align="left">Kenya</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">145184</td>
+<td align="right">2330</td>
+</tr>
+<tr class="even">
+<td align="left">Korea, South</td>
+<td align="right">1335</td>
+<td align="right">1335</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">109559</td>
+<td align="right">1768</td>
+</tr>
+<tr class="odd">
+<td align="left">Kosovo</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">95886</td>
+<td align="right">1968</td>
+</tr>
+<tr class="even">
+<td align="left">Kuwait</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">245704</td>
+<td align="right">1403</td>
+</tr>
+<tr class="odd">
+<td align="left">Kyrgyzstan</td>
+<td align="right">1335</td>
+<td align="right">1335</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">90019</td>
+<td align="right">1519</td>
+</tr>
+<tr class="even">
+<td align="left">Laos</td>
+<td align="right">1335</td>
+<td align="right">1335</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">49</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">Latvia</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">107240</td>
+<td align="right">1986</td>
+</tr>
+<tr class="even">
+<td align="left">Lebanon</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">494633</td>
+<td align="right">6630</td>
+</tr>
+<tr class="odd">
+<td align="left">Lesotho</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">10707</td>
+<td align="right">315</td>
+</tr>
+<tr class="even">
+<td align="left">Liberia</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">2042</td>
+<td align="right">85</td>
+</tr>
+<tr class="odd">
+<td align="left">Libya</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">166888</td>
+<td align="right">2807</td>
+</tr>
+<tr class="even">
+<td align="left">Liechtenstein</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">2738</td>
+<td align="right">56</td>
+</tr>
+<tr class="odd">
+<td align="left">Lithuania</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">225308</td>
+<td align="right">3671</td>
+</tr>
+<tr class="even">
+<td align="left">Luxembourg</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">63467</td>
+<td align="right">763</td>
+</tr>
+<tr class="odd">
+<td align="left">Madagascar</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">27548</td>
+<td align="right">493</td>
+</tr>
+<tr class="even">
+<td align="left">Malawi</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">33805</td>
+<td align="right">1127</td>
+</tr>
+<tr class="odd">
+<td align="left">Malaysia</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">359117</td>
+<td align="right">1321</td>
+</tr>
+<tr class="even">
+<td align="left">Maldives</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">25524</td>
+<td align="right">67</td>
+</tr>
+<tr class="odd">
+<td align="left">Mali</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">11705</td>
+<td align="right">405</td>
+</tr>
+<tr class="even">
+<td align="left">Malta</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">29548</td>
+<td align="right">402</td>
+</tr>
+<tr class="odd">
+<td align="left">Marshall Islands</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">4</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">Mauritania</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">18012</td>
+<td align="right">450</td>
+</tr>
+<tr class="odd">
+<td align="left">Mauritius</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">1190</td>
+<td align="right">12</td>
+</tr>
+<tr class="even">
+<td align="left">Mexico</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">2278420</td>
+<td align="right">209212</td>
+</tr>
+<tr class="odd">
+<td align="left">Micronesia</td>
+<td align="right">1335</td>
+<td align="right">1335</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">1</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">Moldova</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">240886</td>
+<td align="right">5369</td>
+</tr>
+<tr class="odd">
+<td align="left">Monaco</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">2374</td>
+<td align="right">31</td>
+</tr>
+<tr class="even">
+<td align="left">Mongolia</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">14183</td>
+<td align="right">20</td>
+</tr>
+<tr class="odd">
+<td align="left">Montenegro</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">94035</td>
+<td align="right">1365</td>
+</tr>
+<tr class="even">
+<td align="left">Morocco</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">501688</td>
+<td align="right">8891</td>
+</tr>
+<tr class="odd">
+<td align="left">Mozambique</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">68578</td>
+<td align="right">789</td>
+</tr>
+<tr class="even">
+<td align="left">MS Zaandam</td>
+<td align="right">1335</td>
+<td align="right">1335</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">9</td>
+<td align="right">2</td>
+</tr>
+<tr class="odd">
+<td align="left">Namibia</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">45323</td>
+<td align="right">564</td>
+</tr>
+<tr class="even">
+<td align="left">Nepal</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">279725</td>
+<td align="right">3039</td>
+</tr>
+<tr class="odd">
+<td align="left">Netherlands</td>
+<td align="right">6675</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">1342447</td>
+<td align="right">16754</td>
+</tr>
+<tr class="even">
+<td align="left">New Zealand</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">2574</td>
+<td align="right">26</td>
+</tr>
+<tr class="odd">
+<td align="left">Nicaragua</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">6727</td>
+<td align="right">179</td>
+</tr>
+<tr class="even">
+<td align="left">Niger</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">5072</td>
+<td align="right">188</td>
+</tr>
+<tr class="odd">
+<td align="left">Nigeria</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">163736</td>
+<td align="right">2060</td>
+</tr>
+<tr class="even">
+<td align="left">North Macedonia</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">141157</td>
+<td align="right">4182</td>
+</tr>
+<tr class="odd">
+<td align="left">Norway</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">102974</td>
+<td align="right">684</td>
+</tr>
+<tr class="even">
+<td align="left">Oman</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">168005</td>
+<td align="right">1747</td>
+</tr>
+<tr class="odd">
+<td align="left">Pakistan</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">721018</td>
+<td align="right">15443</td>
+</tr>
+<tr class="even">
+<td align="left">Panama</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">358377</td>
+<td align="right">6159</td>
+</tr>
+<tr class="odd">
+<td align="left">Papua New Guinea</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">8342</td>
+<td align="right">68</td>
+</tr>
+<tr class="even">
+<td align="left">Paraguay</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">233745</td>
+<td align="right">4749</td>
+</tr>
+<tr class="odd">
+<td align="left">Peru</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">1639767</td>
+<td align="right">54669</td>
+</tr>
+<tr class="even">
+<td align="left">Philippines</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">853209</td>
+<td align="right">14744</td>
+</tr>
+<tr class="odd">
+<td align="left">Poland</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">2552898</td>
+<td align="right">58176</td>
+</tr>
+<tr class="even">
+<td align="left">Portugal</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">826928</td>
+<td align="right">16910</td>
+</tr>
+<tr class="odd">
+<td align="left">Qatar</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">189064</td>
+<td align="right">331</td>
+</tr>
+<tr class="even">
+<td align="left">Romania</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">1002865</td>
+<td align="right">25006</td>
+</tr>
+<tr class="odd">
+<td align="left">Russia</td>
+<td align="right">1335</td>
+<td align="right">1335</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">4580633</td>
+<td align="right">100949</td>
+</tr>
+<tr class="even">
+<td align="left">Rwanda</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">23343</td>
+<td align="right">314</td>
+</tr>
+<tr class="odd">
+<td align="left">Saint Kitts and Nevis</td>
+<td align="right">1335</td>
+<td align="right">1335</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">44</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">Saint Lucia</td>
+<td align="right">1335</td>
+<td align="right">1335</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">4347</td>
+<td align="right">64</td>
+</tr>
+<tr class="odd">
+<td align="left">Saint Vincent and the Grenadines</td>
+<td align="right">1335</td>
+<td align="right">1335</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">1790</td>
+<td align="right">10</td>
+</tr>
+<tr class="even">
+<td align="left">Samoa</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">3</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">San Marino</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">4956</td>
+<td align="right">85</td>
+</tr>
+<tr class="even">
+<td align="left">Sao Tome and Principe</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">2263</td>
+<td align="right">35</td>
+</tr>
+<tr class="odd">
+<td align="left">Saudi Arabia</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">397636</td>
+<td align="right">6747</td>
+</tr>
+<tr class="even">
+<td align="left">Senegal</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">39364</td>
+<td align="right">1077</td>
+</tr>
+<tr class="odd">
+<td align="left">Serbia</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">639476</td>
+<td align="right">5700</td>
+</tr>
+<tr class="even">
+<td align="left">Seychelles</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">4395</td>
+<td align="right">24</td>
+</tr>
+<tr class="odd">
+<td align="left">Sierra Leone</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">3995</td>
+<td align="right">79</td>
+</tr>
+<tr class="even">
+<td align="left">Singapore</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">60633</td>
+<td align="right">30</td>
+</tr>
+<tr class="odd">
+<td align="left">Slovakia</td>
+<td align="right">1335</td>
+<td align="right">1335</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">370473</td>
+<td align="right">10487</td>
+</tr>
+<tr class="even">
+<td align="left">Slovenia</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">225950</td>
+<td align="right">4112</td>
+</tr>
+<tr class="odd">
+<td align="left">Solomon Islands</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">19</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">Somalia</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">12271</td>
+<td align="right">605</td>
+</tr>
+<tr class="odd">
+<td align="left">South Africa</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">1557527</td>
+<td align="right">53256</td>
+</tr>
+<tr class="even">
+<td align="left">South Sudan</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">10359</td>
+<td align="right">114</td>
+</tr>
+<tr class="odd">
+<td align="left">Spain</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">3347512</td>
+<td align="right">76328</td>
+</tr>
+<tr class="even">
+<td align="left">Sri Lanka</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">94848</td>
+<td align="right">595</td>
+</tr>
+<tr class="odd">
+<td align="left">Sudan</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">31833</td>
+<td align="right">2063</td>
+</tr>
+<tr class="even">
+<td align="left">Suriname</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">9278</td>
+<td align="right">179</td>
+</tr>
+<tr class="odd">
+<td align="left">Sweden</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">857401</td>
+<td align="right">13621</td>
+</tr>
+<tr class="even">
+<td align="left">Switzerland</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">617543</td>
+<td align="right">10452</td>
+</tr>
+<tr class="odd">
+<td align="left">Syria</td>
+<td align="right">1335</td>
+<td align="right">1335</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">20118</td>
+<td align="right">1368</td>
+</tr>
+<tr class="even">
+<td align="left">Taiwan*</td>
+<td align="right">1335</td>
+<td align="right">1335</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">1056</td>
+<td align="right">10</td>
+</tr>
+<tr class="odd">
+<td align="left">Tajikistan</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">13308</td>
+<td align="right">90</td>
+</tr>
+<tr class="even">
+<td align="left">Tanzania</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">509</td>
+<td align="right">21</td>
+</tr>
+<tr class="odd">
+<td align="left">Thailand</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">31658</td>
+<td align="right">97</td>
+</tr>
+<tr class="even">
+<td align="left">Timor-Leste</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">947</td>
+<td align="right">1</td>
+</tr>
+<tr class="odd">
+<td align="left">Togo</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">11947</td>
+<td align="right">116</td>
+</tr>
+<tr class="even">
+<td align="left">Trinidad and Tobago</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">8382</td>
+<td align="right">145</td>
+</tr>
+<tr class="odd">
+<td align="left">Tunisia</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">270297</td>
+<td align="right">9235</td>
+</tr>
+<tr class="even">
+<td align="left">Turkey</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">3798333</td>
+<td align="right">33702</td>
+</tr>
+<tr class="odd">
+<td align="left">Uganda</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">41113</td>
+<td align="right">337</td>
+</tr>
+<tr class="even">
+<td align="left">Ukraine</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">1893192</td>
+<td align="right">38479</td>
+</tr>
+<tr class="odd">
+<td align="left">United Arab Emirates</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">481937</td>
+<td align="right">1529</td>
+</tr>
+<tr class="even">
+<td align="left">United Kingdom</td>
+<td align="right">16020</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">4370321</td>
+<td align="right">127080</td>
+</tr>
+<tr class="odd">
+<td align="left">Uruguay</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">141380</td>
+<td align="right">1414</td>
+</tr>
+<tr class="even">
+<td align="left">US</td>
+<td align="right">1335</td>
+<td align="right">1335</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">31151495</td>
+<td align="right">561783</td>
+</tr>
+<tr class="odd">
+<td align="left">Uzbekistan</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">84724</td>
+<td align="right">634</td>
+</tr>
+<tr class="even">
+<td align="left">Vanuatu</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">3</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">Venezuela</td>
+<td align="right">1335</td>
+<td align="right">1335</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">173786</td>
+<td align="right">1759</td>
+</tr>
+<tr class="even">
+<td align="left">Vietnam</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">2692</td>
+<td align="right">35</td>
+</tr>
+<tr class="odd">
+<td align="left">West Bank and Gaza</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">265897</td>
+<td align="right">2838</td>
+</tr>
+<tr class="even">
+<td align="left">Yemen</td>
+<td align="right">1335</td>
+<td align="right">1335</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">5276</td>
+<td align="right">1031</td>
+</tr>
+<tr class="odd">
+<td align="left">Zambia</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">89918</td>
+<td align="right">1226</td>
+</tr>
+<tr class="even">
+<td align="left">Zimbabwe</td>
+<td align="right">1335</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">445</td>
+<td align="right">37273</td>
+<td align="right">1538</td>
+</tr>
+</table>
+
+</article></slide><slide class=""><hgroup><h2>Exercise</h2></hgroup><article  id="exercise">
+
+<p>Find what didn’t match?</p>
+
+<div class="timer" id="timer1" warnafter="30" onclick="startTimer()">
+<p>2:00</p></div>
+
+</article></slide><slide class=""><hgroup><h2>Solution</h2></hgroup><article  id="solution">
+
+<pre class = 'prettyprint lang-r'>covid.data.long.4 %&gt;% 
+    group_by(`Country/Region`) %&gt;% 
+    summarize( `Total` = n()
+             , &#39;N Missing&#39; = sum(is.na(SP.POP.TOTL))
+             , &quot;# of Reporting dates&quot; = n_distinct(Date)
+             , max.cases = max(confirmed, na.rm=TRUE)
+             , max.deaths = max(deaths, na.rm=TRUE)
+             ) %&gt;% 
+    filter(`N Missing` &gt; 0)</pre>
+
+<table class = 'rmdtable'>
+<tr class="header">
+<th align="left">Country/Region</th>
+<th align="right">Total</th>
+<th align="right">N Missing</th>
+<th align="right"># of Reporting dates</th>
+<th align="right">max.cases</th>
+<th align="right">max.deaths</th>
+</tr>
+<tr class="odd">
+<td align="left">Bahamas</td>
+<td align="right">1335</td>
+<td align="right">1335</td>
+<td align="right">445</td>
+<td align="right">9364</td>
+<td align="right">189</td>
+</tr>
+<tr class="even">
+<td align="left">Brunei</td>
+<td align="right">1335</td>
+<td align="right">1335</td>
+<td align="right">445</td>
+<td align="right">219</td>
+<td align="right">3</td>
+</tr>
+<tr class="odd">
+<td align="left">Burma</td>
+<td align="right">1335</td>
+<td align="right">1335</td>
+<td align="right">445</td>
+<td align="right">142572</td>
+<td align="right">3206</td>
+</tr>
+<tr class="even">
+<td align="left">Congo (Brazzaville)</td>
+<td align="right">1335</td>
+<td align="right">1335</td>
+<td align="right">445</td>
+<td align="right">10084</td>
+<td align="right">137</td>
+</tr>
+<tr class="odd">
+<td align="left">Congo (Kinshasa)</td>
+<td align="right">1335</td>
+<td align="right">1335</td>
+<td align="right">445</td>
+<td align="right">28542</td>
+<td align="right">745</td>
+</tr>
+<tr class="even">
+<td align="left">Czechia</td>
+<td align="right">1335</td>
+<td align="right">1335</td>
+<td align="right">445</td>
+<td align="right">1577972</td>
+<td align="right">27734</td>
+</tr>
+<tr class="odd">
+<td align="left">Diamond Princess</td>
+<td align="right">1335</td>
+<td align="right">1335</td>
+<td align="right">445</td>
+<td align="right">712</td>
+<td align="right">13</td>
+</tr>
+<tr class="even">
+<td align="left">Egypt</td>
+<td align="right">1335</td>
+<td align="right">1335</td>
+<td align="right">445</td>
+<td align="right">209677</td>
+<td align="right">12405</td>
+</tr>
+<tr class="odd">
+<td align="left">Eritrea</td>
+<td align="right">1335</td>
+<td align="right">1335</td>
+<td align="right">445</td>
+<td align="right">3447</td>
+<td align="right">10</td>
+</tr>
+<tr class="even">
+<td align="left">Gambia</td>
+<td align="right">1335</td>
+<td align="right">1335</td>
+<td align="right">445</td>
+<td align="right">5602</td>
+<td align="right">168</td>
+</tr>
+<tr class="odd">
+<td align="left">Holy See</td>
+<td align="right">1335</td>
+<td align="right">1335</td>
+<td align="right">445</td>
+<td align="right">27</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">Iran</td>
+<td align="right">1335</td>
+<td align="right">1335</td>
+<td align="right">445</td>
+<td align="right">2049078</td>
+<td align="right">64232</td>
+</tr>
+<tr class="odd">
+<td align="left">Korea, South</td>
+<td align="right">1335</td>
+<td align="right">1335</td>
+<td align="right">445</td>
+<td align="right">109559</td>
+<td align="right">1768</td>
+</tr>
+<tr class="even">
+<td align="left">Kyrgyzstan</td>
+<td align="right">1335</td>
+<td align="right">1335</td>
+<td align="right">445</td>
+<td align="right">90019</td>
+<td align="right">1519</td>
+</tr>
+<tr class="odd">
+<td align="left">Laos</td>
+<td align="right">1335</td>
+<td align="right">1335</td>
+<td align="right">445</td>
+<td align="right">49</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">Micronesia</td>
+<td align="right">1335</td>
+<td align="right">1335</td>
+<td align="right">445</td>
+<td align="right">1</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">MS Zaandam</td>
+<td align="right">1335</td>
+<td align="right">1335</td>
+<td align="right">445</td>
+<td align="right">9</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="left">Russia</td>
+<td align="right">1335</td>
+<td align="right">1335</td>
+<td align="right">445</td>
+<td align="right">4580633</td>
+<td align="right">100949</td>
+</tr>
+<tr class="odd">
+<td align="left">Saint Kitts and Nevis</td>
+<td align="right">1335</td>
+<td align="right">1335</td>
+<td align="right">445</td>
+<td align="right">44</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">Saint Lucia</td>
+<td align="right">1335</td>
+<td align="right">1335</td>
+<td align="right">445</td>
+<td align="right">4347</td>
+<td align="right">64</td>
+</tr>
+<tr class="odd">
+<td align="left">Saint Vincent and the Grenadines</td>
+<td align="right">1335</td>
+<td align="right">1335</td>
+<td align="right">445</td>
+<td align="right">1790</td>
+<td align="right">10</td>
+</tr>
+<tr class="even">
+<td align="left">Slovakia</td>
+<td align="right">1335</td>
+<td align="right">1335</td>
+<td align="right">445</td>
+<td align="right">370473</td>
+<td align="right">10487</td>
+</tr>
+<tr class="odd">
+<td align="left">Syria</td>
+<td align="right">1335</td>
+<td align="right">1335</td>
+<td align="right">445</td>
+<td align="right">20118</td>
+<td align="right">1368</td>
+</tr>
+<tr class="even">
+<td align="left">Taiwan*</td>
+<td align="right">1335</td>
+<td align="right">1335</td>
+<td align="right">445</td>
+<td align="right">1056</td>
+<td align="right">10</td>
+</tr>
+<tr class="odd">
+<td align="left">US</td>
+<td align="right">1335</td>
+<td align="right">1335</td>
+<td align="right">445</td>
+<td align="right">31151495</td>
+<td align="right">561783</td>
+</tr>
+<tr class="even">
+<td align="left">Venezuela</td>
+<td align="right">1335</td>
+<td align="right">1335</td>
+<td align="right">445</td>
+<td align="right">173786</td>
+<td align="right">1759</td>
+</tr>
+<tr class="odd">
+<td align="left">Yemen</td>
+<td align="right">1335</td>
+<td align="right">1335</td>
+<td align="right">445</td>
+<td align="right">5276</td>
+<td align="right">1031</td>
+</tr>
+</table>
+
+</article></slide><slide class=""><hgroup><h2>Question</h2></hgroup><article  class="flexbox vcenter build" id="question">
+
+<p>What should we do with our data?</p>
+
+<p>This data set on it’s own is not very interesting.</p>
+
+<p>Let’s build something interesting.</p>
+
+<img src='images/Legos.gif' title=''/>
+
+</article></slide><slide class=""><hgroup><h2>Get the desired population data</h2></hgroup><article  id="get-the-desired-population-data">
+
+<ul>
+<li><code>SP.URB.TOTL.ZS</code> - Percentage of Population in Urban Areas (in % of Total Population)</li>
+<li><code>SP.POP.TOTL.MA.ZS</code> - Population, male (% of total)</li>
+<li><code>SP.POP.TOTL</code> - Population, total</li>
+<li><code>EN.POP.DNST</code> - Population density (people per sq km)</li>
+<li><code>IN.POV.HCR.EST.TOTL</code> - Poverty HCR Estimates (%) - Total</li>
+<li><code>NY.GDP.PCAP.CD</code> - GDP per capita (current US$)</li>
+</ul>
+
+<pre class = 'prettyprint lang-r'>pop.vars &lt;- c( &#39;SP.URB.TOTL.ZS&#39;, &#39;SP.POP.TOTL.MA.ZS&#39;
+             , &#39;SP.POP.TOTL&#39;, &#39;EN.POP.DNST&#39;
+             , &#39;IN.POV.HCR.EST.TOTL&#39;, &#39;NY.GDP.PCAP.CD&#39;)
+pop.data &lt;- wb_data(indicator = pop.vars
+                   , start_date = 2020, end_date=2020)</pre>
+
+</article></slide><slide class=""><hgroup><h2>Look at the data</h2></hgroup><article  class="flexbox vcenter build" id="look-at-the-data">
+
+<ol>
+<li><p>What format is it in?</p></li>
+<li><p>Are there any problems?</p></li>
+<li><p>Did we get get everything we expected?</p></li>
+</ol>
+
+</article></slide><slide class=""><hgroup><h2>Join together</h2></hgroup><article  id="join-together">
+
+<pre class = 'prettyprint lang-r'>covid.data.long.final &lt;- 
+    covid.data.long.3 %&gt;% 
+    left_join( pop.data
+             , by=c(&#39;Country/Region&#39;=&#39;country&#39;)
+             )</pre>
+
+</article></slide><slide class=""><hgroup><h2>Exercise/break</h2></hgroup><article  id="exercisebreak">
+
+<div class="timer" id="timer2" warnafter="90" onclick="startTimer()">
+<p>15:00</p></div></article></slide>
+
+
+  <slide class="backdrop"></slide>
+
+</slides>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+<!-- map slide visiblity events into shiny -->
+<script>
+  (function() {
+    if (window.jQuery) {
+       window.jQuery(document).on('slideleave', function(e) {
+         window.jQuery(e.target).trigger('hidden');
+      });
+       window.jQuery(document).on('slideenter', function(e) {
+         window.jQuery(e.target).trigger('shown');
+      });
+    }
+  })();
+</script>
+
+</body>
+</html>

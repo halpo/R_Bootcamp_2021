@@ -176,6 +176,10 @@ hello_world <- function(who = 'world', how = 'hello'){
     print(paste(how, who))
 }
 ```
+```{r}
+hello_world(how = "Buenos dias", "mundo")
+```
+
 
 ## Variadic Arguments {.build}
 

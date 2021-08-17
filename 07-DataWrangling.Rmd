@@ -1,0 +1,495 @@
+---
+title: "Data Wrangling"
+author: "Andrew Redd, PhD."
+date: "R Bootcamp 2020"
+output: 
+    ioslides_presentation:
+        logo: "images/U_Health_stacked_png_red.png"
+        theme: "paper"
+        css: "style.css"
+        keep_md: FALSE
+        md_extensions: 
+            - "+task_lists"
+            - "+multiline_tables"
+        includes:
+            in_header: timer.htm
+        standalone: TRUE
+        widescreen: TRUE
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+library(printr)
+library(tidyverse)
+library(magrittr)
+knitr::opts_chunk$set(echo = TRUE, error=TRUE
+                     , class.error='error'
+                     , class.warning='warning'
+                     , class.message='message'
+                     , cache=FALSE)
+options( repos="https://cran.rstudio.org"
+       , width=60
+       )
+```
+
+# 
+
+![](images/data_wrangler.png)
+
+## Manipulations
+
+* Data integrity
+* Reshaping
+* Filtering
+* Merging
+* Summarizing
+
+## Packages that we will need
+```{r results='hide', message=FALSE}
+# Make tidyverse load quietly
+options(tidyverse.quiet = TRUE)
+library(tidyverse)   #< General use
+library(tidyr)       #< Reshaping
+library(wbstats)     #< World bank data.
+library(countrycode) #< Country coding
+library(assertthat)  #< Results checking
+library(lubridate)   #< Date manipulations
+```
+
+## Loading data
+
+for `.RData` files use `load()`
+```{r}
+load("data/covid.data.wide.dfr.RData")
+```
+
+for `.rds` files use `readRDS()` and capture the results in a variable.
+```r
+data <- readRDS("data/covid.data.wide.dfr.rds")
+```
+
+## Always check your data{.build}
+
+Any problems with the data?
+
+![](images/shock.gif)
+
+## 1st problem: Reshaping data
+
+* Wide Data
+    - multiple observations for one unit are in columns
+* Long Data
+    - multiple observations for one unit are in rows.
+
+## Wide <-> Long {.build}
+
+use [`tidyr::pivot_longer()`](https://rdocumentation.org/packages/tidyr/versions/1.1.3/topics/pivot_longer) or [`tidyr::pivot_wider()`](https://rdocumentation.org/packages/tidyr/versions/1.1.3/topics/pivot_wider).
+
+
+```{r}
+covid.data.long.1 <- 
+tidyr::pivot_longer( covid.data.wide.dfr
+                   , cols=matches("\\d+/\\d+/\\d+")
+                   , names_to="Date"
+                   , values_to="Count")
+```
+
+-----
+```{r}
+glimpse(covid.data.long.1)
+```
+
+
+##  2nd problem: fixing variables {.build}
+
+Tasks:
+    
+1. Convert file names to better categories
+2. Fix date to be an actual date
+
+
+* Use 
+    - [`mutate`](https://www.rdocumentation.org/packages/dplyr/versions/0.7.8/topics/mutate) to add/alter variables,
+    - [`gsub`](https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/grep) with [regular expressions](https://cheatography.com/davechild/cheat-sheets/regular-expressions/) for string manipulation,
+    - and [`lubridate`](https://www.rdocumentation.org/packages/lubridate/versions/1.7.10) for dates.
+
+## `mutate()` variants
+
+* `mutate()` - modify/add variables
+* `mutate_at()` - modify a set of variables.
+* `mutate_if()` - modify variables meeting a criteria
+* `transmute()` - create a new set of variables based on previous.
+
+
+## Make COVID data Long
+
+```{r}
+covid.data.long.2 <-
+    mutate( covid.data.long.1
+          # Add Metric derived from file
+          , Metric = file %>% basename() %>% gsub(".csv", "", ., fixed=TRUE)
+          # Alter Date in place
+          , Date = lubridate::mdy(Date)
+          )
+```
+
+-----
+```{r}
+glimpse(covid.data.long.2)
+```
+
+## Now make it wider
+
+```{r}
+covid.data.long.3 <- 
+    covid.data.long.2 %>% 
+    tidyr::pivot_wider(names_from=Metric, values_from=Count)
+```
+
+-----
+```{r}
+glimpse(covid.data.long.3)
+```
+
+
+
+## `select()` - Choosing variables
+
+:::{.keyfunction}
+Use `select()` to choose the variables desired.
+:::
+
+### Basic Usage
+
+```r
+select(data, ...)
+```
+
+Over the next few examples we will explore the forms `...` can take
+
+## `select()` - Variable Names
+
+the easiest is with variable names:
+
+```{r}
+covid.data.long.2 %>% 
+    select(`Country/Region`, `Province/State`
+          , Date, Metric, Count) %>% 
+    head
+```
+
+## `select()` - Dropping by Variable Names
+
+You can select everything **but** a variable with the minus operator
+
+```{r}
+covid.data.long.2 %>% select(-file) %>% head()
+```
+
+## `select()` - By the numbers
+
+You can select by variable position as well.
+
+```{r}
+covid.data.long.3 %>% select(2, 3, 6:9) %>% head()
+```
+
+## `select()` - by variable range
+
+Use single colon `:` with variable names to select variables named and eveything in between:
+
+
+```{r}
+covid.data.long.3 %>% 
+    select(`Province/State`, `Country/Region`, Date
+          , confirmed:recovered) %>% head()
+```
+
+## `select()` - by helpers
+
+selection helpers are also provided:
+
+```{r}
+covid.data.long.3 %>% select(contains("/")) %>% head()
+```
+
+## `select()` - The helpers
+
+The available helpers are:
+
+* `starts_with()`
+* `ends_with()`
+* `contains()` - must match literally
+* `matches()` - Regular expression match 
+* `num_range()` - numerical ranged variables with a prefix
+* `all_of()` - must match all of given variables named in a vector.
+* `any_of()` - select any variables present in given vector, but no error if not present.
+* `everything()` - Matches all variables, useful when reordering variables.
+* `last_col()` - The last column
+
+## `select()` - Multiple
+
+You may use multiple forms together.
+
+```{r}
+covid.data.long.3 %>% 
+    select(2:3, where(is.Date), confirmed:recovered) %>% 
+    head()
+```
+
+## Subsetting data {.build}
+
+:::{.keyfunction}
+Subset data with the `filter()` function.
+:::
+
+The base R version is subset, but it is FAR less robust.
+
+It takes the form of
+```r
+filter(data, expr1, expr2, ...)
+```
+
+where `data` is the data set, and `expr1`, `expr2`, ... are the criteria 
+expressions evaluated *in the context of the data*. 
+Data must meet *all* ctriteria to remain.
+
+
+## `filter()` Example
+
+Subset data to only confirmed cases for Nigeria.
+
+```{r}
+covid.data.long.3 %>% 
+    select(2:3, Date:recovered) %>% 
+    filter( `Country/Region` == "US") %>% 
+    head()
+```
+
+
+## `filter()` Or 
+
+to perform an `or` use the single `|`
+
+```{r}
+covid.data.long.3 %>% 
+    select(2:3, Date:recovered) %>% 
+    filter( (`Country/Region` == "US") | (`Country/Region` == "Canada")
+          ) %>% head()
+```
+## `filter()` and
+
+Independent statements to filter are combined assuming an `and`. You can make an and explicit with a `&`.
+
+an alternate form would be to use `%in%`
+
+```{r}
+covid.data.long.3 %>% 
+    select(2:3, Date:recovered) %>% 
+    filter( `Country/Region` %in% c('US', 'Canada', 'Mexico')
+          , is.na(`Province/State`)
+          ) %>% head()
+```
+
+## `distinct()` - normalizing {.build}
+
+From the previous filter example note that report date is repeated week after week.  
+:::{.keyfunction}
+To get only distinct observations, use `distinct()`.
+:::
+
+## `distinct()` - normalizing {.build}
+
+```{r}
+covid.data.long.3 %>% 
+    filter( `Country/Region` %in% c('US', 'Canada', 'Mexico')
+          , is.na(`Province/State`)
+          ) %>%
+    select(2:3) %>% 
+    distinct()
+```
+
+## Sorting Data
+
+:::{.keyfunction}
+To sort data use `arrange()`
+:::
+
+`sort()` is the base version but again, less robust.
+
+Arrange allows you to give sorting criteria.
+
+## `arrange()` Example
+```{r}
+covid.data.long.2 %>% 
+    arrange(`Country/Region`, `Province/State`, Date) %>%
+    select(2:3, Date, Metric, Count) %>% 
+    head()
+```
+
+## Combining data
+
+:::{.keyfunction}
+
+Use the **`join`** family of functions to merge data together:
+
+* `inner_join(a, b)` - keep only rows that match both `a` and `b`.
+* `left_join(a, b)` - keep all rows of `a` and add columns in `b` to the rows that match.  Unmatched rows will contain missing values.
+* `right_join(a, b)` - same as left but swap `a` and `b`.
+* `full_join(a, b)` - keep all rows of both `a` and `b`.
+* `semi_join(a, b)` - keep all rows of `a` that match `b`, but don't add columns from `b`.
+* `anti_join(a, b)` - keep only those rows of `a` that **don't** match `b`.
+:::
+
+Operations have these parameters:
+
+* `by` - variables to join on, defaults to common variables
+* `suffix` - sufixes to add to distinguish common variables that are not part of `by`
+
+## World Bank Data
+
+The `wbstats` package provides access to the world bank database.
+
+```{r "wb-population", results='hide'}
+library(wbstats)
+wb_search('population', extra=TRUE)
+```
+```{r "wb-pop.total", results='hide'}
+(wb.pop.data <- wb_data(indicator ="SP.POP.TOTL", start_date = 2020, end_date = 2021))
+```
+
+Run these commands, investigate the output and then let's discuss.
+
+
+
+## Example: Add country information to COVID data {.build}
+
+Which join do we want to use?
+
+```{r}
+covid.data.long.4 <- 
+    left_join(covid.data.long.3, wb.pop.data
+             , by=c('Country/Region'='country')
+             )
+```
+
+Now we need to investigate...
+
+# Summarization
+
+## Summarization
+
+:::{.keyfunction}
+`summarise(data, ...)`
+
+: Take the data and summarise it by performing the `...` 
+  operations to it.
+:::
+
+```{r}
+covid.data.long.4 %>% 
+    summarize( `Total` = n()
+             , 'N Missing' = sum(is.na(SP.POP.TOTL))
+             , 'Number of countries' = n_distinct(`Country/Region`)
+             , "# of Reporting dates" = n_distinct(Date)
+             , max.cases = max(confirmed, na.rm=TRUE)
+             , max.deaths = max(deaths, na.rm=TRUE)
+             )
+```
+
+## Grouped Summarization
+
+:::{.keyfunction}
+`group_by(data, ...)`
+
+: Take the data and group it by variables specified in `...`,  
+  all subsequent operations should be done by group.
+:::
+
+## Grouped Summarization
+```{r}
+covid.data.long.4 %>% 
+    group_by(`Country/Region`) %>% 
+    summarize( `Total` = n()
+             , 'N Missing' = sum(is.na(SP.POP.TOTL))
+             , 'Number of countries' = n_distinct(`Country/Region`)
+             , "# of Reporting dates" = n_distinct(Date)
+             , max.cases = max(confirmed, na.rm=TRUE)
+             , max.deaths = max(deaths, na.rm=TRUE)
+             )
+```
+## Exercise
+
+Find what didn't match?
+
+:::{#timer1 .timer onclick="startTimer()" warnafter=30}
+2:00
+:::
+
+## Solution
+
+```{r}
+covid.data.long.4 %>% 
+    group_by(`Country/Region`) %>% 
+    summarize( `Total` = n()
+             , 'N Missing' = sum(is.na(SP.POP.TOTL))
+             , "# of Reporting dates" = n_distinct(Date)
+             , max.cases = max(confirmed, na.rm=TRUE)
+             , max.deaths = max(deaths, na.rm=TRUE)
+             ) %>% 
+    filter(`N Missing` > 0)
+```
+
+## Question {.flexbox .vcenter .build}
+
+What should we do with our data?
+
+This data set on it's own is not very interesting.
+
+Let's build something interesting.
+
+![](images/Legos.gif)
+
+## Get the desired population data
+
+* `SP.URB.TOTL.ZS` - Percentage of Population in Urban Areas (in % of Total Population)
+* `SP.POP.TOTL.MA.ZS` - Population, male (% of total)
+* `SP.POP.TOTL` - Population, total
+* `EN.POP.DNST` - Population density (people per sq km)
+* `IN.POV.HCR.EST.TOTL` - Poverty HCR Estimates (%) - Total
+* `NY.GDP.PCAP.CD` - GDP per capita (current US$)
+```{r}
+pop.vars <- c( 'SP.URB.TOTL.ZS', 'SP.POP.TOTL.MA.ZS'
+             , 'SP.POP.TOTL', 'EN.POP.DNST'
+             , 'IN.POV.HCR.EST.TOTL', 'NY.GDP.PCAP.CD')
+pop.data <- wb_data(indicator = pop.vars
+                   , start_date = 2020, end_date=2020)
+```
+
+## Look at the data {.flexbox .vcenter .build}
+
+1. What format is it in?
+
+2. Are there any problems?
+
+3. Did we get get everything we expected?
+
+## Join together
+
+```{r}
+covid.data.long.final <- 
+    covid.data.long.3 %>% 
+    left_join( pop.data
+             , by=c('Country/Region'='country')
+             )
+```
+```{r include=FALSE}
+save(our.data, meta.pop.data, file="data/our.data.RData")
+```
+
+## Exercise/break
+
+:::{#timer2 .timer onclick="startTimer()" warnafter=90}
+15:00
+:::
+

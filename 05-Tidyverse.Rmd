@@ -96,6 +96,19 @@ library(tidyverse)
         - [glue](https://github.com/tidyverse/glue) - Strings + data
         - [rlang](https://rlang.r-lib.org/) - manipulation of R language base types.
     
+## The Pipe `%>%`
+
+Use it to tie multiple short statements together into a single 
+complex statement that is easy to understand and use. 
+
+```{r "Pipe operator"}
+library(tidyverse)
+iris %>% #< take iris data
+    filter(Species=='setosa') %>% #< perform a filter
+    nrow() #< count the rows.
+```
+
+    
 ## Tidyverse - Packages
 
 * Cohesive set of packages to handle common aspects of data analysis.

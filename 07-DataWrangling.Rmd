@@ -94,6 +94,49 @@ tidyr::pivot_longer( covid.data.wide.dfr
                    , values_to="Count")
 ```
 
+##  {.flexbox .vcenter}
+
+Time for an aside on tidy selectors.
+
+
+## Tidy selectors {.build}
+
+The statement `. %>% select(file, 1:10) %>% ...` states to give back only the column named `file` then columns at indices 1 through 10.
+
+Note `file` is not quoted.  `select` and other tidy functions uses tidy selection, a form of lazy evaluation where the arguments are evaluated in the context of the data.
+
+- `:` - sequence, i.e. all variables between given variables
+- `!` - compliment of what is provided.
+- `-` - drop specified variable
+
+
+## Tidy selector functions
+
+- `everything()` - everything not already specified.
+- `last_col()` - last variable, or nth last variable
+- String matches: `starts_with()`, `ends_with()`, `contains()`(exact match), and `matches()`(regular expression match) 
+- `num_range()` example: X1, X2, X3, ... could be selected with `num_range('X')`
+- escaping the lazy evaluation
+    + `all_of()` and `any_of()`, Example: `select(my.data, any_of(my.vars))` would select any variables from my.data whose names were present in the variable `my.vars`.
+    + `where()`, give a predicate to make the determination if variable should be kept or not. Ex. `where(is.numeric)` would select all numeric variables.
+
+-----
+
+![](images/BackToProgramming.jpg){.fullpage}
+
+## Wide <-> Long
+
+use [`tidyr::pivot_longer()`](https://rdocumentation.org/packages/tidyr/versions/1.1.3/topics/pivot_longer) or [`tidyr::pivot_wider()`](https://rdocumentation.org/packages/tidyr/versions/1.1.3/topics/pivot_wider).
+
+
+```{r}
+covid.data.long.1 <- 
+tidyr::pivot_longer( covid.data.wide.dfr
+                   , cols=matches("\\d+/\\d+/\\d+")
+                   , names_to="Date"
+                   , values_to="Count")
+```
+
 -----
 ```{r}
 glimpse(covid.data.long.1)
@@ -301,11 +344,11 @@ To get only distinct observations, use `distinct()`.
 ## `distinct()` - normalizing {.build}
 
 ```{r}
-covid.data.long.3 %>% 
+covid.data.long.2 %>% 
     filter( `Country/Region` %in% c('US', 'Canada', 'Mexico')
           , is.na(`Province/State`)
           ) %>%
-    select(2:3) %>% 
+    select(2:3, Metric) %>% 
     distinct()
 ```
 
@@ -322,8 +365,8 @@ Arrange allows you to give sorting criteria.
 ## `arrange()` Example
 ```{r}
 covid.data.long.2 %>% 
-    arrange(`Country/Region`, `Province/State`, Date) %>%
-    select(2:3, Date, Metric, Count) %>% 
+    arrange(Date, `Country/Region`, `Province/State`) %>%
+    select(3:2, Date, Metric, Count) %>% 
     head()
 ```
 
@@ -484,7 +527,7 @@ covid.data.long.final <-
              )
 ```
 ```{r include=FALSE}
-save(our.data, meta.pop.data, file="data/our.data.RData")
+save(covid.data.long.final, file="data/covid.data.long.final.RData")
 ```
 
 ## Exercise/break

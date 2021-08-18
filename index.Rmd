@@ -22,7 +22,7 @@ This webpage will be your guide to this course. Please Start by reading the
 * [Tidyverse](05-Tidyverse.html) [![](images/pdf.png)](pdf/Tidyverse.pdf)
 * [Getting Data](06-GettingData.html)
 * [Data Wrangling](07-DataWrangling.html)
-* Graphics
+* [Graphics](08-Graphics)
 * Analysis
 * Wrapup
 
@@ -34,8 +34,8 @@ This webpage will be your guide to this course. Please Start by reading the
 *Posted as available*
 
 * [Day 1](https://web.microsoftstream.com/video/e3995b77-2d34-4bd8-94c6-d2c14b0564f1)
-* Day 2
-* Day 3
+* [Day 2](https://web.microsoftstream.com/video/26606340-3403-4fac-9fb2-b4b3435d6693?list=studio)
+* [Day 3](https://web.microsoftstream.com/video/1b04a820-4865-4d52-8899-f8c737ada126)
 * Day 4
 * Day 5
 

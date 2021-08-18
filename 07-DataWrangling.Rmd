@@ -186,6 +186,7 @@ glimpse(covid.data.long.2)
 ```{r}
 covid.data.long.3 <- 
     covid.data.long.2 %>% 
+    select(-file) %>% #< important to drop in order to get the right result
     tidyr::pivot_wider(names_from=Metric, values_from=Count)
 ```
 

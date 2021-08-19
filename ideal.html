@@ -285,10 +285,6 @@ library(magrittr)</code></pre>
 requireNamespace(&quot;countrycode&quot;)</code></pre>
 <pre><code>## Loading required namespace: countrycode</code></pre>
 <p>In the course of work there is an ideal of code quality that we strive for.</p>
-<div class="figure">
-<img src="%22images/wtfpm.jpg%22" alt="" />
-<p class="caption">images/wtfpm.jpg</p>
-</div>
 <p>Few ever achieve ‘ideal’ code quality. I hope here to show the difference between what would be an ideal vs what reality is much to look like.</p>
 <div id="ideal" class="section level2">
 <h2>Ideal</h2>
@@ -330,8 +326,20 @@ requireNamespace(&quot;countrycode&quot;)</code></pre>
                    , start_date = 2020, end_date=2020)
              , by=&#39;iso3c&#39;
              )</code></pre>
+<pre><code>## Warning: The following named parsers don&#39;t match the column names: Province/
+## State, Country/Region, Long, Lat</code></pre>
+<pre><code>## Warning: 109 parsing failures.
+## row          col               expected  actual                file
+##   1 Wine         an integer             Lafite  &#39;data/Bordeaux.csv&#39;
+##   1 CoatesPoints no trailing characters 19.5    &#39;data/Bordeaux.csv&#39;
+##   2 Wine         an integer             Latour  &#39;data/Bordeaux.csv&#39;
+##   2 CoatesPoints no trailing characters 18.5    &#39;data/Bordeaux.csv&#39;
+##   3 Wine         an integer             Margaux &#39;data/Bordeaux.csv&#39;
+## ... ............ ...................... ....... ...................
+## See problems(...) for more details.</code></pre>
 <pre><code>## Warning in countrycode_convert(sourcevar = sourcevar, origin = origin, destination = dest, : Some values were not matched unambiguously: Diamond Princess, Kosovo, Micronesia, MS Zaandam</code></pre>
-<pre class="r"><code>saveRDS(covid.data.long.final, file=&quot;data/covid.data.long.final.rds&quot;)</code></pre>
+<pre class="r"><code>save(covid.data.long.final, file=&quot;data/covid.data.long.final.RData&quot;)
+saveRDS(covid.data.long.final, file=&quot;data/covid.data.long.final.rds&quot;)</code></pre>
 </div>
 <div id="find-unmatched-countries" class="section level2">
 <h2>Find unmatched countries</h2>
@@ -342,9 +350,34 @@ requireNamespace(&quot;countrycode&quot;)</code></pre>
 <pre><code>## `summarise()` has grouped output by &#39;Country/Region&#39;. You can override using the `.groups` argument.</code></pre>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
-{"columns":[{"label":["Country/Region"],"name":[1],"type":["chr"],"align":["left"]},{"label":["iso3c"],"name":[2],"type":["chr"],"align":["left"]},{"label":["n_missing"],"name":[3],"type":["int"],"align":["right"]}],"data":[{"1":"Diamond Princess","2":"NA","3":"445"},{"1":"Eritrea","2":"ERI","3":"445"},{"1":"Holy See","2":"VAT","3":"445"},{"1":"Kosovo","2":"NA","3":"445"},{"1":"Micronesia","2":"NA","3":"445"},{"1":"MS Zaandam","2":"NA","3":"445"},{"1":"Taiwan*","2":"TWN","3":"445"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":["Country/Region"],"name":[1],"type":["chr"],"align":["left"]},{"label":["iso3c"],"name":[2],"type":["chr"],"align":["left"]},{"label":["n_missing"],"name":[3],"type":["int"],"align":["right"]}],"data":[{"1":"Diamond Princess","2":"NA","3":"445"},{"1":"Eritrea","2":"ERI","3":"445"},{"1":"Holy See","2":"VAT","3":"445"},{"1":"Kosovo","2":"NA","3":"445"},{"1":"Micronesia","2":"NA","3":"445"},{"1":"MS Zaandam","2":"NA","3":"445"},{"1":"Taiwan*","2":"TWN","3":"445"},{"1":"NA","2":"NA","3":"32040"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
+<pre class="r"><code>library(lubridate)</code></pre>
+<pre><code>## 
+## Attaching package: &#39;lubridate&#39;</code></pre>
+<pre><code>## The following objects are masked from &#39;package:base&#39;:
+## 
+##     date, intersect, setdiff, union</code></pre>
+<pre class="r"><code>tmp &lt;- covid.data.long.final %&gt;% 
+    mutate(Month=month(Date),Year = year(Date)) %&gt;% 
+    group_by(Month, Year)
+
+plot.data.ex &lt;- 
+summarise(group_by(tmp, `Country/Region`, .add=TRUE), Max = max(Confirmed)) %&gt;% filter(Month==3, Year == 2020) %&gt;% arrange(desc(Max)) %&gt;% 
+    head(10) %&gt;% ungroup %&gt;% select(-Year) %&gt;% 
+    left_join(tmp)</code></pre>
+<pre><code>## `summarise()` has grouped output by &#39;Month&#39;, &#39;Year&#39;. You can override using the `.groups` argument.</code></pre>
+<pre><code>## Joining, by = c(&quot;Month&quot;, &quot;Country/Region&quot;)</code></pre>
+<pre class="r"><code>ggplot(data=plot.data.ex, aes(x=Date, y=Confirmed, col = `Country/Region`)) +
+    geom_point() +
+    geom_line() +
+    facet_grid(Month~Year, scales=&quot;free_x&quot;) +
+    scale_y_continuous(trans = &#39;log2&#39;)</code></pre>
+<pre><code>## Warning: Transformation introduced infinite values in continuous y-axis
+
+## Warning: Transformation introduced infinite values in continuous y-axis</code></pre>
+<p><img src="ideal_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
 </div>
 
 

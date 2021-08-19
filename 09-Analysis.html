@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Analysis</title>
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <meta name="generator" content="pandoc" />
+
+
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+
+  <base target="_blank">
+
+  <script type="text/javascript">
+    var SLIDE_CONFIG = {
+      // Slide settings
+      settings: {
+                title: 'Analysis',
+                        useBuilds: true,
+        usePrettify: true,
+        enableSlideAreas: true,
+        enableTouch: true,
+                        favIcon: '09-Analysis_files/logo.png',
+              },
+
+      // Author information
+      presenters: [
+            {
+        name:  'Andrew Redd, PhD.' ,
+        company: '',
+        gplus: '',
+        twitter: '',
+        www: '',
+        github: ''
+      },
+            ]
+    };
+  </script>
+
+  <script type='text/javascript' id='timer-js'>
+  var counts = {};
+  var timers = {};
+  var initial = {};
+  function startTimer() {
+  	//var count = initial;
+  	var trigger = event.target;
+  	var div = trigger.parentNode;
+  	console.log("startTimer triggered by click on " + div.nodeName + "#" + div.id + ">" + trigger.nodeName);
+  	var eid = div.id;
+  	var warning = (div.hasAttribute("warnafter")) ? (+div.getAttribute("warnafter")) : 0;
+  	console.log("eid=" + eid + ", warning=" + warning);
+      if (!(eid in initial)){
+          var p = trigger;
+
+          var init = trigger.innerHTML;
+          console.log("init=" + init);
+
+          var a = init.split(':');
+          initial[eid] = (+a[0])*60 + (+a[1]);
+          console.log("initial[eid]=", initial[eid]);
+      }
+      counts[eid] = initial[eid];
+      if (eid in timers && timers[eid] != 0) {
+          clearInterval(timers[eid]); timers[eid] = 0;
+          var minutes = Math.floor((initial[eid] % (60 * 60)) / (60));
+          var seconds = Math.floor((initial[eid] % (60)));
+          document.getElementById(eid).innerHTML = hms(initial[eid]);
+      } else {
+          timers[eid] = setInterval(function() {
+              // Time calculations for days, hours, minutes and seconds
+              var count = counts[eid] - 1;
+              if (count > 0) {
+                  document.getElementById(eid).innerHTML = hms(count, count <= warning);
+              } else {
+                  document.getElementById(eid).innerHTML = "<p class='timesup'>0:00</p>";
+                  clearInterval(timers[eid]);
+                  timers[eid] = 0;
+              }
+              counts[eid] = count;
+          }, 1000);
+      }
+  };
+  function hms(count, warn) {
+      var leading = ''
+      var minutes = Math.floor((count % (60 * 60)) / (60));
+      var seconds = Math.floor((count % (60)));
+      if (seconds <= 9){
+          leading = "0";
+      }
+      var start;
+      if (warn) {
+          start = "<p class='warning'>";
+      } else {
+          start = "<p>";
+      }
+      return start + minutes + ":" + leading +  seconds + "</p>";
+  };
+  </script>
+  <script src="site_libs/header-attrs-2.8/header-attrs.js"></script>
+  <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="site_libs/bootstrap-3.3.5/css/paper.min.css" rel="stylesheet" />
+  <script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+  <script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+  <script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+  <style>h1 {font-size: 34px;}
+         h1.title {font-size: 38px;}
+         h2 {font-size: 30px;}
+         h3 {font-size: 24px;}
+         h4 {font-size: 18px;}
+         h5 {font-size: 16px;}
+         h6 {font-size: 12px;}
+         code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+         pre:not([class]) { background-color: white }</style>
+  <link href="site_libs/ioslides-13.5.1/fonts/fonts.css" rel="stylesheet" />
+  <link href="site_libs/ioslides-13.5.1/theme/css/default.css" rel="stylesheet" />
+  <link href="site_libs/ioslides-13.5.1/theme/css/phone.css" rel="stylesheet" />
+  <script src="site_libs/ioslides-13.5.1/js/modernizr.custom.45394.js"></script>
+  <script src="site_libs/ioslides-13.5.1/js/prettify/prettify.js"></script>
+  <script src="site_libs/ioslides-13.5.1/js/prettify/lang-r.js"></script>
+  <script src="site_libs/ioslides-13.5.1/js/prettify/lang-yaml.js"></script>
+  <script src="site_libs/ioslides-13.5.1/js/hammer.js"></script>
+  <script src="site_libs/ioslides-13.5.1/js/slide-controller.js"></script>
+  <script src="site_libs/ioslides-13.5.1/js/slide-deck.js"></script>
+
+  <style type="text/css">
+
+    b, strong {
+      font-weight: bold;
+    }
+
+    em {
+      font-style: italic;
+    }
+
+    summary {
+      display: list-item;
+    }
+
+    slides > slide {
+      -webkit-transition: all 0.4s ease-in-out;
+      -moz-transition: all 0.4s ease-in-out;
+      -o-transition: all 0.4s ease-in-out;
+      transition: all 0.4s ease-in-out;
+    }
+
+    .auto-fadein {
+      -webkit-transition: opacity 0.6s ease-in;
+      -webkit-transition-delay: 0.4s;
+      -moz-transition: opacity 0.6s ease-in 0.4s;
+      -o-transition: opacity 0.6s ease-in 0.4s;
+      transition: opacity 0.6s ease-in 0.4s;
+      opacity: 0;
+    }
+/* https://github.com/ropensci/plotly/pull/524#issuecomment-468142578 */
+slide:not(.current) .plotly.html-widget{
+  display: block;
+}
+
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+            pre > code.sourceCode { white-space: pre; position: relative; }
+            pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+            pre > code.sourceCode > span:empty { height: 1.2em; }
+            .sourceCode { overflow: visible; }
+            code.sourceCode > span { color: inherit; text-decoration: inherit; }
+            div.sourceCode { margin: 1em 0; }
+            pre.sourceCode { margin: 0; }
+            @media screen {
+            div.sourceCode { overflow: auto; }
+            }
+            @media print {
+            pre > code.sourceCode { white-space: pre-wrap; }
+            pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+            }
+            pre.numberSource code
+              { counter-reset: source-line 0; }
+            pre.numberSource code > span
+              { position: relative; left: -4em; counter-increment: source-line; }
+            pre.numberSource code > span > a:first-child::before
+              { content: counter(source-line);
+                position: relative; left: -1em; text-align: right; vertical-align: baseline;
+                border: none; display: inline-block;
+                -webkit-touch-callout: none; -webkit-user-select: none;
+                -khtml-user-select: none; -moz-user-select: none;
+                -ms-user-select: none; user-select: none;
+                padding: 0 4px; width: 4em;
+                color: #aaaaaa;
+              }
+            pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+            div.sourceCode
+              {   }
+            @media screen {
+            pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+            }
+            code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+            code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+            code span.at { color: #7d9029; } /* Attribute */
+            code span.bn { color: #40a070; } /* BaseN */
+            code span.bu { } /* BuiltIn */
+            code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+            code span.ch { color: #4070a0; } /* Char */
+            code span.cn { color: #880000; } /* Constant */
+            code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+            code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+            code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+            code span.dt { color: #902000; } /* DataType */
+            code span.dv { color: #40a070; } /* DecVal */
+            code span.er { color: #ff0000; font-weight: bold; } /* Error */
+            code span.ex { } /* Extension */
+            code span.fl { color: #40a070; } /* Float */
+            code span.fu { color: #06287e; } /* Function */
+            code span.im { } /* Import */
+            code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+            code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+            code span.op { color: #666666; } /* Operator */
+            code span.ot { color: #007020; } /* Other */
+            code span.pp { color: #bc7a00; } /* Preprocessor */
+            code span.sc { color: #4070a0; } /* SpecialChar */
+            code span.ss { color: #bb6688; } /* SpecialString */
+            code span.st { color: #4070a0; } /* String */
+            code span.va { color: #19177c; } /* Variable */
+            code span.vs { color: #4070a0; } /* VerbatimString */
+            code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+        
+    slides > slide:not(.nobackground):before {
+      font-size: 12pt;
+      content: "";
+      position: absolute;
+      bottom: 20px;
+      left: 60px;
+      background: url(09-Analysis_files/logo.png) no-repeat 0 50%;
+      -webkit-background-size: 30px 30px;
+      -moz-background-size: 30px 30px;
+      -o-background-size: 30px 30px;
+      background-size: 30px 30px;
+      padding-left: 40px;
+      height: 30px;
+      line-height: 1.9;
+    }
+  </style>
+
+  <link rel="stylesheet" href="style.css" type="text/css" />
+
+</head>
+
+<body style="opacity: 0">
+
+<slides class="layout-widescreen">
+
+  <slide class="title-slide segue nobackground">
+        <aside class="gdbar"><img src="09-Analysis_files/logo.png"></aside>
+        <!-- The content of this hgroup is replaced programmatically through the slide_config.json. -->
+    <hgroup class="auto-fadein">
+      <h1 data-config-title><!-- populated from slide_config.json --></h1>
+      
+      <p data-config-presenter><!-- populated from slide_config.json --></p>
+            <p style="margin-top: 6px; margin-left: -2px;">R Bootcamp 2020</p>
+          </hgroup>
+  </slide>
+
+<slide class="segue dark nobackground level1"><hgroup class = 'auto-fadein'><h2>Data</h2></hgroup><article  id="data">
+
+</article></slide><slide class=""><hgroup><h2>Bordeaux Wine Data</h2></hgroup><article  id="bordeaux-wine-data">
+
+<pre class = 'prettyprint lang-r'>bordeaux &lt;- readRDS(&quot;data/bordeaux.rds&quot;)</pre>
+
+<h3>Variables</h3>
+
+<ul>
+<li><code>Wine</code> - the name of the wine.</li>
+<li><code>Price</code> - The price of the wine in pounds sterling(£)</li>
+<li><code>ParkerPoints</code> - the rating out of 100 given by <a href='https://www.robertparker.com/' title=''>Robert Parker</a>.</li>
+<li><code>CoatesPoints</code> - the rating out of 20 given by <a href='http://www.clive-coates.com/' title=''>Clive Coates</a></li>
+<li><code>P95andAbove</code> - a dummy variable, 1 if <code>ParkerPoints&gt;=95</code></li>
+<li><code>FirstGrowth</code> - inditcator of if the wine is a <a href='https://en.wikipedia.org/wiki/First_Growth' title=''>first growth</a></li>
+<li><code>CultWine</code> - indicator of if the wine is a <a href='https://en.wikipedia.org/wiki/Cult_wine' title=''>cult wine</a></li>
+<li><code>Pomerol</code> - indicator for if the wine is from <a href='https://en.wikipedia.org/wiki/Pomerol' title=''>Pomerol</a>, France</li>
+<li><code>VintageSuperstar</code> - indicator if the wine is a superstar</li>
+</ul>
+
+</article></slide><slide class="segue dark nobackground level1"><hgroup class = 'auto-fadein'><h2>Hypothesis Tests</h2></hgroup><article  id="hypothesis-tests">
+
+</article></slide><slide class=""><hgroup><h2>T-test</h2></hgroup><article  id="t-test">
+
+<p>Test if there is a difference in price for first growth wines.</p>
+
+<pre class = 'prettyprint lang-r'>(fg.test &lt;- t.test(Price~FirstGrowth, data=bordeaux))</pre>
+
+<pre >## 
+##  Welch Two Sample t-test
+## 
+## data:  Price by FirstGrowth
+## t = -3.0865, df = 9.9044, p-value = 0.01164
+## alternative hypothesis: true difference in means between group FALSE and group TRUE is not equal to 0
+## 95 percent confidence interval:
+##  -4544.7200  -731.1188
+## sample estimates:
+## mean in group FALSE  mean in group TRUE 
+##            815.0806           3453.0000</pre>
+
+</article></slide><slide class=""><hgroup><h2></h2></hgroup><article >
+
+<div class="terminology">
+<p>Formulas, created with a <code>~</code>, represent relationships. They can</p>
+
+<ul>
+<li>be one sided <code>~x</code>
+
+<ul>
+<li>Lambda functions <code>~log(.+1)</code></li>
+</ul></li>
+<li>or two sided <code>y ~ x + z</code>
+
+<ul>
+<li>specify relationships or models</li>
+</ul></li>
+<li>often include functions
+
+<ul>
+<li><code>y ~ x + log(z)</code></li>
+<li><code>y ~ x + poly(z,3)</code>, a polynomial fit of degree 3 on <code>z</code></li>
+</ul></li>
+<li>have special syntax
+
+<ul>
+<li>interaction <code>y ~ x:z</code></li>
+<li>crossing <code>y ~ a*b</code> is equal to <code>y ~ a + b + a:b</code></li>
+<li>nesting <code>y ~ a + b %in% a</code> or equivalently <code>y~a/b</code></li>
+</ul></li>
+</ul></div>
+
+</article></slide><slide class=""><hgroup><h2>Getting usable results from a model</h2></hgroup><article  class="build" id="getting-usable-results-from-a-model">
+
+<p>The <code>fg.test</code> object is a htest object, which prints nicely but what if we want to include this in our table 1?</p>
+
+<p>Try these:</p>
+
+<pre class = 'prettyprint lang-r'>str(fg.test) # get the underlying structure of the object.
+glimpse(fg.test) # alternative to str that handles some objects better. 
+fg.test$p.value
+getElement(fg.test, &#39;p.value&#39;)
+fg.test[[&#39;p.value&#39;]]</pre>
+
+</article></slide><slide class="segue dark nobackground level1"><hgroup class = 'auto-fadein'><h2>Linear Models</h2></hgroup><article  id="linear-models">
+
+</article></slide><slide class=""><hgroup><h2>Wine Model</h2></hgroup><article  id="wine-model">
+
+<p>We will rely on the normal approximation for proportions.</p>
+
+<pre class = 'prettyprint lang-r'>model &lt;- lm( Price ~ . - Wine - P95andAbove, data=bordeaux)
+model</pre>
+
+<pre >## 
+## Call:
+## lm(formula = Price ~ . - Wine - P95andAbove, data = bordeaux)
+## 
+## Coefficients:
+##          (Intercept)          ParkerPoints  
+##             -7390.78                 61.94  
+##         CoatesPoints       FirstGrowthTRUE  
+##               116.27               2001.41  
+##         CultWineTRUE           PomerolTRUE  
+##              4583.54                739.16  
+## VintageSuperstarTRUE  
+##              1424.58</pre>
+
+<p>Not really useful.</p>
+
+</article></slide><slide class=""><hgroup><h2>Formula Creation Model</h2></hgroup><article  id="formula-creation-model">
+
+<div class="concept">
+<dl>
+<dt>Formula Subtraction</dt>
+<dd><p><code>Price ~ . - Wine - P95andAbove</code> should be read as</p>
+
+<blockquote>
+<p>&ldquo;Model Price by all variables <strong>except</strong> Wine and P95andAbove.&rdquo;</p>
+</blockquote></dd>
+</dl></div>
+
+</article></slide><slide class=""><hgroup><h2>Summarizing Models</h2></hgroup><article  id="summarizing-models">
+
+<pre class = 'prettyprint lang-r'>(model.summary &lt;- summary(model))</pre>
+
+<pre >## 
+## Call:
+## lm(formula = Price ~ . - Wine - P95andAbove, data = bordeaux)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -3251.2  -102.5    40.5   167.2  4463.7 
+## 
+## Coefficients:
+##                      Estimate Std. Error t value Pr(&gt;|t|)
+## (Intercept)          -7390.78    3766.82  -1.962   0.0540
+## ParkerPoints            61.94      44.84   1.381   0.1719
+## CoatesPoints           116.27     119.14   0.976   0.3327
+## FirstGrowthTRUE       2001.41     410.38   4.877 7.28e-06
+## CultWineTRUE          4583.54     470.80   9.736 2.56e-14
+## PomerolTRUE            739.16     305.71   2.418   0.0184
+## VintageSuperstarTRUE  1424.58     715.89   1.990   0.0508
+##                         
+## (Intercept)          .  
+## ParkerPoints            
+## CoatesPoints            
+## FirstGrowthTRUE      ***
+## CultWineTRUE         ***
+## PomerolTRUE          *  
+## VintageSuperstarTRUE .  
+## ---
+## Signif. codes:  
+## 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 941.3 on 65 degrees of freedom
+## Multiple R-squared:  0.7716, Adjusted R-squared:  0.7506 
+## F-statistic: 36.61 on 6 and 65 DF,  p-value: &lt; 2.2e-16</pre>
+
+</article></slide><slide class=""><hgroup><h2>Exercise: Try the following</h2></hgroup><article  id="exercise-try-the-following">
+
+<div class="columns-2">
+<div class="column">
+<h4>Extracting Parts of the model</h4>
+
+<pre class = 'prettyprint lang-r'>coef(model)
+coef(summary(model))
+deviance(model)
+formula(model)
+residuals(model)</pre></div>
+
+<div class="column">
+<h4>Operations on models</h4>
+
+<pre class = 'prettyprint lang-r'>summary(model)
+plot(model)
+predict(model)
+vcov(model)
+anova(model)
+aov(model)</pre></div></div>
+
+<div id="modelstimer" warnafter="30" class="timer" onclick="startTimer()">
+<p>5:00</p></div>
+
+</article></slide><slide class=""><hgroup><h2>Residual plots</h2></hgroup><article  id="residual-plots">
+
+<pre class = 'prettyprint lang-r'>plot(model, 1) #&lt; Residuals vs. Fitted  | Goodness of fit</pre>
+
+<p><img src="09-Analysis_files/figure-html/unnamed-chunk-5-1.png" width="720" /></p>
+
+</article></slide><slide class=""><hgroup><h2>Residual plots</h2></hgroup><article  id="residual-plots-1">
+
+<pre class = 'prettyprint lang-r'>plot(model, 2) #&lt; Normal Q-Q            | Appropriate error model </pre>
+
+<p><img src="09-Analysis_files/figure-html/unnamed-chunk-6-1.png" width="720" /></p>
+
+</article></slide><slide class=""><hgroup><h2>Residual plots</h2></hgroup><article  id="residual-plots-2">
+
+<pre class = 'prettyprint lang-r'>plot(model, 3) #&lt; Scale-Location        | Homoscedasticity</pre>
+
+<p><img src="09-Analysis_files/figure-html/unnamed-chunk-7-1.png" width="720" /></p>
+
+</article></slide><slide class=""><hgroup><h2>Residual plots</h2></hgroup><article  id="residual-plots-3">
+
+<pre class = 'prettyprint lang-r'>plot(model, 5) #&lt; Residual vs. Leverage | Influential points</pre>
+
+<p><img src="09-Analysis_files/figure-html/unnamed-chunk-8-1.png" width="720" /></p></article></slide>
+
+
+  <slide class="backdrop"></slide>
+
+</slides>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+<!-- map slide visiblity events into shiny -->
+<script>
+  (function() {
+    if (window.jQuery) {
+       window.jQuery(document).on('slideleave', function(e) {
+         window.jQuery(e.target).trigger('hidden');
+      });
+       window.jQuery(document).on('slideenter', function(e) {
+         window.jQuery(e.target).trigger('shown');
+      });
+    }
+  })();
+</script>
+
+</body>
+</html>

@@ -269,7 +269,9 @@ slide:not(.current) .plotly.html-widget{
 
 <slide class="segue dark nobackground level1"><hgroup class = 'auto-fadein'><h2>Plots</h2></hgroup><article  id="plots">
 
-<p><img src="08-Graphics_files/figure-html/unnamed-chunk-1-1.svg" width="720" /> ## Packages</p>
+<p><img src="08-Graphics_files/figure-html/unnamed-chunk-1-1.svg" width="720" /></p>
+
+</article></slide><slide class=""><hgroup><h2>Packages</h2></hgroup><article  id="packages">
 
 <h3>Must have</h3>
 
@@ -292,10 +294,7 @@ slide:not(.current) .plotly.html-widget{
 
 </article></slide><slide class=""><hgroup><h2>Example: What are the components?</h2></hgroup><article  id="example-what-are-the-components">
 
-<pre class = 'prettyprint lang-warning'>## Warning in gzfile(file, &quot;rb&quot;): cannot open compressed file
-## &#39;bordeaux.rds&#39;, probable reason &#39;No such file or directory&#39;</pre>
-
-<pre class = 'prettyprint lang-error'>## Error in gzfile(file, &quot;rb&quot;): cannot open the connection</pre>
+<p><img src="08-Graphics_files/figure-html/unnamed-chunk-2-1.png" width="720" /></p>
 
 </article></slide><slide class=""><hgroup><h2>Graphics Systems</h2></hgroup><article  id="graphics-systems">
 
@@ -455,7 +454,7 @@ plot1 &lt;-
 ggplot(data=covid.data.long.final) +               #&lt; Our &#39;data&#39; component
     geom_point(                         #&lt; a point geometry layer
         aes( x = Date  #&lt; our mappings
-           , y = confirmed
+           , y = Confirmed
            , col = `Country/Region`
            )                         
       , stat = &#39;unique&#39;                 #&lt; our statistic  
@@ -466,8 +465,6 @@ ggplot(data=covid.data.long.final) +               #&lt; Our &#39;data&#39; comp
 </article></slide><slide class=""><hgroup><h2>Example</h2></hgroup><article  id="example-1">
 
 <pre class = 'prettyprint lang-r'>plot1</pre>
-
-<pre class = 'prettyprint lang-error'>## Error in FUN(X[[i]], ...): object &#39;confirmed&#39; not found</pre>
 
 <p><img src="08-Graphics_files/figure-html/unnamed-chunk-3-1.png" width="720" /> We can do better.</p>
 
@@ -508,12 +505,6 @@ ggplot(data= plot.data
 
 </article></slide><slide class=""><hgroup><h2>Layered Example</h2></hgroup><article  id="layered-example-1">
 
-<pre class = 'prettyprint lang-warning'>## Warning: Removed 8010 rows containing non-finite values
-## (stat_smooth).</pre>
-
-<pre class = 'prettyprint lang-warning'>## Warning: Removed 1335 rows containing missing values
-## (geom_point).</pre>
-
 <p><img src="08-Graphics_files/figure-html/unnamed-chunk-4-1.png" width="720" /></p>
 
 </article></slide><slide class=""><hgroup><h2>Scales</h2></hgroup><article  id="scales">
@@ -521,18 +512,6 @@ ggplot(data= plot.data
 <p><a href='https://ggplot2.tidyverse.org/reference/#section-scales' title=''>Reference</a></p>
 
 </article></slide><slide class=""><hgroup><h2>Scales</h2></hgroup><article  id="scales-1">
-
-<pre class = 'prettyprint lang-warning'>## Warning: Transformation introduced infinite values in
-## continuous y-axis
-
-## Warning: Transformation introduced infinite values in
-## continuous y-axis</pre>
-
-<pre class = 'prettyprint lang-warning'>## Warning: Removed 13010 rows containing non-finite values
-## (stat_smooth).</pre>
-
-<pre class = 'prettyprint lang-warning'>## Warning: Removed 1335 rows containing missing values
-## (geom_point).</pre>
 
 <p><img src="08-Graphics_files/figure-html/unnamed-chunk-5-1.png" width="720" /></p>
 
@@ -561,15 +540,9 @@ ggplot(data= plot.data %&gt;% filter(is.na(`Province/State`))
 
 </article></slide><slide class=""><hgroup><h2></h2></hgroup><article >
 
-<pre class = 'prettyprint lang-warning'>## Warning: Removed 890 rows containing non-finite values
-## (stat_smooth).</pre>
-
-<pre class = 'prettyprint lang-warning'>## Warning: Removed 890 rows containing missing values
-## (geom_point).</pre>
-
 <p><img src="08-Graphics_files/figure-html/unnamed-chunk-8-1.png" width="720" /></p>
 
-</article></slide><slide class=""><hgroup><h2>Themes</h2></hgroup><article  id="themes" class="build">
+</article></slide><slide class=""><hgroup><h2>Themes</h2></hgroup><article  class="build" id="themes">
 
 <p>Themes are what control the non-data elements of a visualization</p>
 
@@ -632,11 +605,9 @@ ebola.plot1+my.theme</pre>
 
 <pre class = 'prettyprint lang-r'>qplot( Date, Count + 1L, color = `Country/Region`
      , shape= Metric
-     , data=plot.data %&gt;% filter(Date &gt; &quot;2021-04-01&quot;)) + 
+     , data=plot.data %&gt;% filter(Date &gt; &quot;2021-04-01&quot;)) +
+    geom_line()+
     scale_y_log10()</pre>
-
-<pre class = 'prettyprint lang-warning'>## Warning: Removed 162 rows containing missing values
-## (geom_point).</pre>
 
 <p><img src="08-Graphics_files/figure-html/unnamed-chunk-13-1.png" width="720" /></p>
 
@@ -655,7 +626,7 @@ ebola.plot1+my.theme</pre>
 </ol></li>
 </ol>
 
-<div id="timer-plots" onclick="startTimer()" warnafter="120" class="timer">
+<div class="timer" onclick="startTimer()" warnafter="120" id="timer-plots">
 <p>10:00</p></div>
 
 </article></slide><slide class=""><hgroup><h2>Solution: Preliminary</h2></hgroup><article  id="solution-preliminary">

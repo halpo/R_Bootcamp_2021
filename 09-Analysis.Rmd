@@ -1,0 +1,181 @@
+---
+title: "Analysis"
+author: "Andrew Redd, PhD."
+date: "R Bootcamp 2021"
+output:
+  ioslides_presentation:
+    logo: images/U_Health_stacked_png_red.png
+    theme: paper
+    css: style.css
+    keep_md: no
+    md_extensions:
+    - +task_lists
+    - +multiline_tables
+    includes:
+      in_header: timer.htm
+    standalone: yes
+    widescreen: yes
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+library(printr)
+library(tidyverse)
+library(magrittr)
+knitr::opts_chunk$set(echo = TRUE, error=TRUE
+                     , class.error='error'
+                     , class.warning='warning'
+                     , class.message='message'
+                     , cache=FALSE)
+options( repos="https://cran.rstudio.org"
+       , width=60
+       )
+```
+
+# Data
+
+## Bordeaux Wine Data
+```{r}
+bordeaux <- readRDS("data/bordeaux.rds")
+```
+
+### Variables
+* `Wine` - the name of the wine.
+* `Price` - The price of the wine in pounds sterling(&pound;)
+* `ParkerPoints` - the rating out of 100 given by [Robert Parker](https://www.robertparker.com/).
+* `CoatesPoints` - the rating out of 20 given by [Clive Coates](http://www.clive-coates.com/)
+* `P95andAbove` - a dummy variable, 1 if `ParkerPoints>=95`
+* `FirstGrowth` - inditcator of if the wine is a [first growth](https://en.wikipedia.org/wiki/First_Growth)
+* `CultWine` - indicator of if the wine is a [cult wine](https://en.wikipedia.org/wiki/Cult_wine)
+* `Pomerol` - indicator for if the wine is from [Pomerol](https://en.wikipedia.org/wiki/Pomerol), France
+* `VintageSuperstar` - indicator if the wine is a superstar
+
+
+# Hypothesis Tests
+
+## T-test
+
+Test if there is a difference in price for first growth wines.
+```{r}
+(fg.test <- t.test(Price~FirstGrowth, data=bordeaux))
+```
+
+-----
+:::{.terminology}
+Formulas, created with a `~`, represent relationships. They can 
+
+* be one sided `~x`
+    - Lambda functions `~log(.+1)`
+* or two sided `y ~ x + z`
+    - specify relationships or models
+* often include functions
+    - `y ~ x + log(z)`
+    - `y ~ x + poly(z,3)`, a polynomial fit of degree 3 on `z`
+* have special syntax
+    - interaction `y ~ x:z`
+    - crossing `y ~ a*b` is equal to `y ~ a + b + a:b`
+    - nesting `y ~ a + b %in% a` or equivalently `y~a/b`
+:::
+
+## Getting usable results from a model {.build}
+
+The `fg.test` object is a `r class(fg.test)` object, 
+which prints nicely but what if we want to include this in our table 1?
+
+Try these:
+```r
+str(fg.test) # get the underlying structure of the object.
+glimpse(fg.test) # alternative to str that handles some objects better. 
+fg.test$p.value
+getElement(fg.test, 'p.value')
+fg.test[['p.value']]
+```
+
+
+# Linear Models
+
+
+
+## Wine Model
+
+We will rely on the normal approximation for proportions.
+
+```{r}
+model <- lm( Price ~ . - Wine - P95andAbove, data=bordeaux)
+model
+```
+Not really useful.
+
+## Formula Creation Model
+
+::: {.concept}
+
+Formula Subtraction
+
+: `Price ~ . - Wine - P95andAbove` should be read as
+
+    > "Model Price by all variables **except** Wine and P95andAbove."
+
+:::
+
+## Summarizing Models
+
+```{r}
+(model.summary <- summary(model))
+```
+
+## Exercise: Try the following
+
+:::::: {.columns-2}
+:::{.column}
+#### Extracting Parts of the model
+
+```r
+coef(model)
+coef(summary(model))
+deviance(model)
+formula(model)
+residuals(model)
+```
+:::
+:::{.column}
+#### Operations on models
+
+```r
+summary(model)
+plot(model)
+predict(model)
+vcov(model)
+anova(model)
+aov(model)
+```
+:::
+::::::
+
+:::{#modelstimer .timer onclick="startTimer()" warnafter=30}
+5:00
+:::
+
+## Residual plots
+
+```{r h=4,w=6}
+plot(model, 1) #< Residuals vs. Fitted  | Goodness of fit
+```
+
+## Residual plots
+
+```{r}
+plot(model, 2) #< Normal Q-Q            | Appropriate error model 
+```
+
+## Residual plots
+
+```{r}
+plot(model, 3) #< Scale-Location        | Homoscedasticity
+```
+
+## Residual plots
+
+```{r}
+plot(model, 5) #< Residual vs. Leverage | Influential points
+```

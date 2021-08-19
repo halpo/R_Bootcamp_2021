@@ -16,7 +16,6 @@ requireNamespace("countrycode")
 
 In the course of work there is an ideal of code quality that we strive for.
 
-![images/wtfpm.jpg]("images/wtfpm.jpg")
 
 Few ever achieve 'ideal' code quality.  I hope here to show the difference between what would be an ideal vs what reality is much to look like.
 
@@ -63,6 +62,7 @@ covid.data.long.final <-
                    , start_date = 2020, end_date=2020)
              , by='iso3c'
              )
+save(covid.data.long.final, file="data/covid.data.long.final.RData")
 saveRDS(covid.data.long.final, file="data/covid.data.long.final.rds")
 ```
 
@@ -75,6 +75,23 @@ covid.data.long.final %>%
 ```
 
 
+```{r}
+library(lubridate)
+tmp <- covid.data.long.final %>% 
+    mutate(Month=month(Date),Year = year(Date)) %>% 
+    group_by(Month, Year)
+
+plot.data.ex <- 
+summarise(group_by(tmp, `Country/Region`, .add=TRUE), Max = max(Confirmed)) %>% filter(Month==3, Year == 2020) %>% arrange(desc(Max)) %>% 
+    head(10) %>% ungroup %>% select(-Year) %>% 
+    left_join(tmp)
+
+ggplot(data=plot.data.ex, aes(x=Date, y=Confirmed, col = `Country/Region`)) +
+    geom_point() +
+    geom_line() +
+    facet_grid(Month~Year, scales="free_x") +
+    scale_y_continuous(trans = 'log2')
+```
 
 
 

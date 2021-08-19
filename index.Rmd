@@ -22,8 +22,8 @@ This webpage will be your guide to this course. Please Start by reading the
 * [Tidyverse](05-Tidyverse.html) [![](images/pdf.png)](pdf/Tidyverse.pdf)
 * [Getting Data](06-GettingData.html) [![](images/pdf.png)](pdf/GettingData.pdf)
 * [Data Wrangling](07-DataWrangling.html) [![](images/pdf.png)](pdf/DataWrangling.pdf)
-* [Graphics](08-Graphics)
-* Analysis
+* [Graphics](08-Graphics) [![](images/pdf.png)](pdf/Graphics.pdf)
+* [Analysis](09-Analysis.html)[![](images/pdf.png)](pdf/Analysis.pdf)
 * Wrapup
 
 ## Data

@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Graphics</title>
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <meta name="generator" content="pandoc" />
+
+
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+
+  <base target="_blank">
+
+  <script type="text/javascript">
+    var SLIDE_CONFIG = {
+      // Slide settings
+      settings: {
+                title: 'Graphics',
+                        useBuilds: true,
+        usePrettify: true,
+        enableSlideAreas: true,
+        enableTouch: true,
+                        favIcon: '08-Graphics_files/logo.png',
+              },
+
+      // Author information
+      presenters: [
+            {
+        name:  'Andrew Redd, PhD.' ,
+        company: '',
+        gplus: '',
+        twitter: '',
+        www: '',
+        github: ''
+      },
+            ]
+    };
+  </script>
+
+  <script type='text/javascript' id='timer-js'>
+  var counts = {};
+  var timers = {};
+  var initial = {};
+  function startTimer() {
+  	//var count = initial;
+  	var trigger = event.target;
+  	var div = trigger.parentNode;
+  	console.log("startTimer triggered by click on " + div.nodeName + "#" + div.id + ">" + trigger.nodeName);
+  	var eid = div.id;
+  	var warning = (div.hasAttribute("warnafter")) ? (+div.getAttribute("warnafter")) : 0;
+  	console.log("eid=" + eid + ", warning=" + warning);
+      if (!(eid in initial)){
+          var p = trigger;
+
+          var init = trigger.innerHTML;
+          console.log("init=" + init);
+
+          var a = init.split(':');
+          initial[eid] = (+a[0])*60 + (+a[1]);
+          console.log("initial[eid]=", initial[eid]);
+      }
+      counts[eid] = initial[eid];
+      if (eid in timers && timers[eid] != 0) {
+          clearInterval(timers[eid]); timers[eid] = 0;
+          var minutes = Math.floor((initial[eid] % (60 * 60)) / (60));
+          var seconds = Math.floor((initial[eid] % (60)));
+          document.getElementById(eid).innerHTML = hms(initial[eid]);
+      } else {
+          timers[eid] = setInterval(function() {
+              // Time calculations for days, hours, minutes and seconds
+              var count = counts[eid] - 1;
+              if (count > 0) {
+                  document.getElementById(eid).innerHTML = hms(count, count <= warning);
+              } else {
+                  document.getElementById(eid).innerHTML = "<p class='timesup'>0:00</p>";
+                  clearInterval(timers[eid]);
+                  timers[eid] = 0;
+              }
+              counts[eid] = count;
+          }, 1000);
+      }
+  };
+  function hms(count, warn) {
+      var leading = ''
+      var minutes = Math.floor((count % (60 * 60)) / (60));
+      var seconds = Math.floor((count % (60)));
+      if (seconds <= 9){
+          leading = "0";
+      }
+      var start;
+      if (warn) {
+          start = "<p class='warning'>";
+      } else {
+          start = "<p>";
+      }
+      return start + minutes + ":" + leading +  seconds + "</p>";
+  };
+  </script>
+  <script src="site_libs/header-attrs-2.8/header-attrs.js"></script>
+  <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="site_libs/bootstrap-3.3.5/css/paper.min.css" rel="stylesheet" />
+  <script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+  <script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+  <script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+  <style>h1 {font-size: 34px;}
+         h1.title {font-size: 38px;}
+         h2 {font-size: 30px;}
+         h3 {font-size: 24px;}
+         h4 {font-size: 18px;}
+         h5 {font-size: 16px;}
+         h6 {font-size: 12px;}
+         code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+         pre:not([class]) { background-color: white }</style>
+  <link href="site_libs/ioslides-13.5.1/fonts/fonts.css" rel="stylesheet" />
+  <link href="site_libs/ioslides-13.5.1/theme/css/default.css" rel="stylesheet" />
+  <link href="site_libs/ioslides-13.5.1/theme/css/phone.css" rel="stylesheet" />
+  <script src="site_libs/ioslides-13.5.1/js/modernizr.custom.45394.js"></script>
+  <script src="site_libs/ioslides-13.5.1/js/prettify/prettify.js"></script>
+  <script src="site_libs/ioslides-13.5.1/js/prettify/lang-r.js"></script>
+  <script src="site_libs/ioslides-13.5.1/js/prettify/lang-yaml.js"></script>
+  <script src="site_libs/ioslides-13.5.1/js/hammer.js"></script>
+  <script src="site_libs/ioslides-13.5.1/js/slide-controller.js"></script>
+  <script src="site_libs/ioslides-13.5.1/js/slide-deck.js"></script>
+
+  <style type="text/css">
+
+    b, strong {
+      font-weight: bold;
+    }
+
+    em {
+      font-style: italic;
+    }
+
+    summary {
+      display: list-item;
+    }
+
+    slides > slide {
+      -webkit-transition: all 0.4s ease-in-out;
+      -moz-transition: all 0.4s ease-in-out;
+      -o-transition: all 0.4s ease-in-out;
+      transition: all 0.4s ease-in-out;
+    }
+
+    .auto-fadein {
+      -webkit-transition: opacity 0.6s ease-in;
+      -webkit-transition-delay: 0.4s;
+      -moz-transition: opacity 0.6s ease-in 0.4s;
+      -o-transition: opacity 0.6s ease-in 0.4s;
+      transition: opacity 0.6s ease-in 0.4s;
+      opacity: 0;
+    }
+/* https://github.com/ropensci/plotly/pull/524#issuecomment-468142578 */
+slide:not(.current) .plotly.html-widget{
+  display: block;
+}
+
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+            pre > code.sourceCode { white-space: pre; position: relative; }
+            pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+            pre > code.sourceCode > span:empty { height: 1.2em; }
+            .sourceCode { overflow: visible; }
+            code.sourceCode > span { color: inherit; text-decoration: inherit; }
+            div.sourceCode { margin: 1em 0; }
+            pre.sourceCode { margin: 0; }
+            @media screen {
+            div.sourceCode { overflow: auto; }
+            }
+            @media print {
+            pre > code.sourceCode { white-space: pre-wrap; }
+            pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+            }
+            pre.numberSource code
+              { counter-reset: source-line 0; }
+            pre.numberSource code > span
+              { position: relative; left: -4em; counter-increment: source-line; }
+            pre.numberSource code > span > a:first-child::before
+              { content: counter(source-line);
+                position: relative; left: -1em; text-align: right; vertical-align: baseline;
+                border: none; display: inline-block;
+                -webkit-touch-callout: none; -webkit-user-select: none;
+                -khtml-user-select: none; -moz-user-select: none;
+                -ms-user-select: none; user-select: none;
+                padding: 0 4px; width: 4em;
+                color: #aaaaaa;
+              }
+            pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+            div.sourceCode
+              {   }
+            @media screen {
+            pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+            }
+            code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+            code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+            code span.at { color: #7d9029; } /* Attribute */
+            code span.bn { color: #40a070; } /* BaseN */
+            code span.bu { } /* BuiltIn */
+            code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+            code span.ch { color: #4070a0; } /* Char */
+            code span.cn { color: #880000; } /* Constant */
+            code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+            code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+            code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+            code span.dt { color: #902000; } /* DataType */
+            code span.dv { color: #40a070; } /* DecVal */
+            code span.er { color: #ff0000; font-weight: bold; } /* Error */
+            code span.ex { } /* Extension */
+            code span.fl { color: #40a070; } /* Float */
+            code span.fu { color: #06287e; } /* Function */
+            code span.im { } /* Import */
+            code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+            code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+            code span.op { color: #666666; } /* Operator */
+            code span.ot { color: #007020; } /* Other */
+            code span.pp { color: #bc7a00; } /* Preprocessor */
+            code span.sc { color: #4070a0; } /* SpecialChar */
+            code span.ss { color: #bb6688; } /* SpecialString */
+            code span.st { color: #4070a0; } /* String */
+            code span.va { color: #19177c; } /* Variable */
+            code span.vs { color: #4070a0; } /* VerbatimString */
+            code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+        
+    slides > slide:not(.nobackground):before {
+      font-size: 12pt;
+      content: "";
+      position: absolute;
+      bottom: 20px;
+      left: 60px;
+      background: url(08-Graphics_files/logo.png) no-repeat 0 50%;
+      -webkit-background-size: 30px 30px;
+      -moz-background-size: 30px 30px;
+      -o-background-size: 30px 30px;
+      background-size: 30px 30px;
+      padding-left: 40px;
+      height: 30px;
+      line-height: 1.9;
+    }
+  </style>
+
+  <link rel="stylesheet" href="style.css" type="text/css" />
+
+</head>
+
+<body style="opacity: 0">
+
+<slides class="layout-widescreen">
+
+  <slide class="title-slide segue nobackground">
+        <aside class="gdbar"><img src="08-Graphics_files/logo.png"></aside>
+        <!-- The content of this hgroup is replaced programmatically through the slide_config.json. -->
+    <hgroup class="auto-fadein">
+      <h1 data-config-title><!-- populated from slide_config.json --></h1>
+      
+      <p data-config-presenter><!-- populated from slide_config.json --></p>
+            <p style="margin-top: 6px; margin-left: -2px;">R Bootcamp 2020</p>
+          </hgroup>
+  </slide>
+
+<slide class="segue dark nobackground level1"><hgroup class = 'auto-fadein'><h2>Plots</h2></hgroup><article  id="plots">
+
+<p><img src="08-Graphics_files/figure-html/unnamed-chunk-1-1.svg" width="720" /> ## Packages</p>
+
+<h3>Must have</h3>
+
+<ul>
+<li><a href='https://cran.r-project.org/package=ggplot2' title=''><code>ggplot2</code></a></li>
+<li><a href='https://cran.r-project.org/package=viridis' title=''><code>viridis</code></a></li>
+</ul>
+
+<h3>Extras to check out</h3>
+
+<ul>
+<li><a href='https://cran.r-project.org/package=ggplot2' title=''><code>ggridges</code></a></li>
+</ul>
+
+</article></slide><slide class=""><hgroup><h2>Thought Exercise:</h2></hgroup><article  id="thought-exercise">
+
+<blockquote>
+<p>What are we trying to do with graphics?</p>
+</blockquote>
+
+</article></slide><slide class=""><hgroup><h2>Example: What are the components?</h2></hgroup><article  id="example-what-are-the-components">
+
+<pre class = 'prettyprint lang-warning'>## Warning in gzfile(file, &quot;rb&quot;): cannot open compressed file
+## &#39;bordeaux.rds&#39;, probable reason &#39;No such file or directory&#39;</pre>
+
+<pre class = 'prettyprint lang-error'>## Error in gzfile(file, &quot;rb&quot;): cannot open the connection</pre>
+
+</article></slide><slide class=""><hgroup><h2>Graphics Systems</h2></hgroup><article  id="graphics-systems">
+
+<p>There are esentially 3 graphics systems in R:</p>
+
+<ol>
+<li>Base graphics</li>
+<li>Grid graphics</li>
+<li>ggplot2</li>
+</ol>
+
+</article></slide><slide class=""><hgroup><h2>Base Graphics</h2></hgroup><article  id="base-graphics">
+
+<p>Don’t waste your time</p>
+
+</article></slide><slide class=""><hgroup><h2>Base Graphics</h2></hgroup><article  id="base-graphics-1">
+
+<p>An even bigger waste of time</p>
+
+</article></slide><slide class="segue dark nobackground level1"><hgroup class = 'auto-fadein'><h2>Grammar of Graphics</h2></hgroup><article  id="grammar-of-graphics">
+
+<img src='images/treasure-map-2.webp' title=''/>
+
+</article></slide><slide class=""><hgroup><h2>Gramar of Graphics</h2></hgroup><article  id="gramar-of-graphics">
+
+<p>Building blocks of data visualizations.</p>
+
+<ul>
+<li>Aesthetics
+
+<ul>
+<li>location</li>
+<li>size</li>
+<li>shape</li>
+<li>height</li>
+<li>width</li>
+<li>area</li>
+<li>color
+
+<ul>
+<li>fill</li>
+<li>border</li>
+</ul></li>
+<li>transparency</li>
+<li><del>time/animation</del></li>
+</ul></li>
+</ul>
+
+</article></slide><slide class=""><hgroup><h2>Gramar of Graphics</h2></hgroup><article  id="gramar-of-graphics-1">
+
+<p>Building <img src='images/Brick_blue.png' title=''/>blocks<img src='images/Brick_blue.png' title=''/> of data visualizations.</p>
+
+<ul>
+<li>Aesthetics…</li>
+<li>Data
+
+<ul>
+<li>map variables from data to aesthetics</li>
+<li>Summarizations
+
+<ul>
+<li>outliers, Q1, Median Q3, outliers → Box plots</li>
+<li>binning → histograms</li>
+<li>density → density, violin, etc.</li>
+<li>smoothing: loess, splines, etc.</li>
+</ul></li>
+</ul></li>
+</ul>
+
+</article></slide><slide class=""><hgroup><h2>Gramar of Graphics</h2></hgroup><article  id="gramar-of-graphics-2">
+
+<p>Building blocks of data visualizations.</p>
+
+<ul>
+<li>Aesthetics…</li>
+<li>Data</li>
+<li>Coordinate System
+
+<ul>
+<li>Cartesian</li>
+<li>Geographic</li>
+<li>Polar</li>
+<li>Scaling
+
+<ul>
+<li>Logarithmic</li>
+<li>Square-root</li>
+</ul></li>
+</ul></li>
+</ul>
+
+</article></slide><slide class=""><hgroup><h2>Gramar of Graphics</h2></hgroup><article  id="gramar-of-graphics-3">
+
+<p>Building blocks of data visualizations.</p>
+
+<ul>
+<li>Aesthetics…</li>
+<li>Data</li>
+<li>Coordinate System</li>
+<li>Facets
+
+<ul>
+<li>Grid</li>
+<li>Strip</li>
+<li>Wrap</li>
+</ul></li>
+</ul>
+
+</article></slide><slide class=""><hgroup><h2>Gramar of Graphics</h2></hgroup><article  id="gramar-of-graphics-4">
+
+<p>Building blocks of data visualizations.</p>
+
+<ul>
+<li>Aesthetics…</li>
+<li>Data</li>
+<li>Coordinate System</li>
+<li>Facets
+
+<ul>
+<li>Grid</li>
+<li>Strip</li>
+<li>Wrap</li>
+</ul></li>
+</ul>
+
+</article></slide><slide class=""><hgroup><h2>Terminology</h2></hgroup><article  id="terminology">
+
+<div class="terminology">
+<dl>
+<dt>Data</dt>
+<dd><p>What we are visualizing</p></dd>
+<dt>Geometry</dt>
+<dd><p>The type of visualization.</p></dd>
+<dt>Mapping</dt>
+<dd><p>How variables translate variables from data to aesthetic components of the graph.</p></dd>
+<dt>Statistic</dt>
+<dd><p>If and how variables are to be summarized prior to being mapped to aesthetics.</p></dd>
+</dl></div>
+
+</article></slide><slide class=""><hgroup><h2>Terminology</h2></hgroup><article  id="terminology-1">
+
+<div class="terminology">
+<dl>
+<dt>Coordinates</dt>
+<dd><p>How Axes are displayed.</p></dd>
+<dt>Facets</dt>
+<dd><p>How a visualization is to be broken into parts.</p></dd>
+<dt>Position</dt>
+<dd><p>How elements should be positioned; sitter, stacked, dodge, etc.</p></dd>
+</dl></div>
+
+</article></slide><slide class=""><hgroup><h2>Example</h2></hgroup><article  id="example">
+
+<pre class = 'prettyprint lang-r'>library(ggplot2)
+load(&quot;data/covid.data.long.final.RData&quot;)
+plot1 &lt;- 
+ggplot(data=covid.data.long.final) +               #&lt; Our &#39;data&#39; component
+    geom_point(                         #&lt; a point geometry layer
+        aes( x = Date  #&lt; our mappings
+           , y = confirmed
+           , col = `Country/Region`
+           )                         
+      , stat = &#39;unique&#39;                 #&lt; our statistic  
+      , position = &#39;identity&#39;           #&lt; how to position data
+    ) + 
+    scale_color_viridis_d(guide=FALSE)</pre>
+
+</article></slide><slide class=""><hgroup><h2>Example</h2></hgroup><article  id="example-1">
+
+<pre class = 'prettyprint lang-r'>plot1</pre>
+
+<pre class = 'prettyprint lang-error'>## Error in FUN(X[[i]], ...): object &#39;confirmed&#39; not found</pre>
+
+<p><img src="08-Graphics_files/figure-html/unnamed-chunk-3-1.png" width="720" /> We can do better.</p>
+
+</article></slide><slide class=""><hgroup><h2>Layers</h2></hgroup><article  id="layers">
+
+<div class="terminology">
+<dl>
+<dt>Layers</dt>
+<dd><p>Layers are the combination of a geometry, data, mapping, statistic, and position.</p>
+
+<p>Graphs may have and often do have many layers in them.</p></dd>
+</dl></div>
+
+<img class="float-right" src='images/onions.jpg' title=''/>
+
+</article></slide><slide class=""><hgroup><h2>Layered Example</h2></hgroup><article  id="layered-example">
+
+<pre class = 'prettyprint lang-r'>library(ggplot2)
+load(&quot;data/covid.data.long.final.RData&quot;)
+plot.data &lt;- covid.data.long.final %&gt;% 
+            filter(iso3c %in% !!c(&#39;USA&#39;, &#39;CAN&#39;, &#39;MEX&#39;)) %&gt;% 
+            pivot_longer( Confirmed:Recovered
+                        , names_to = &#39;Metric&#39;
+                        , values_to= &#39;Count&#39;
+                        ) 
+plot2 &lt;- 
+ggplot(data= plot.data
+      , aes( x = Date   
+           , y = Count
+           , col = `Country/Region`
+           )                         
+      ) +               
+    geom_point( stat = &#39;unique&#39;
+              , size = 1         #&lt; An explicit aesthetic. 
+              ) + 
+    geom_smooth(method=&#39;gam&#39;, formula=y ~ s(x, bs = &quot;cs&quot;)) +   #&lt; new &#39;smooth&#39; layer
+    facet_wrap(~Metric, 3, 1)  #&lt; faceting </pre>
+
+</article></slide><slide class=""><hgroup><h2>Layered Example</h2></hgroup><article  id="layered-example-1">
+
+<pre class = 'prettyprint lang-warning'>## Warning: Removed 8010 rows containing non-finite values
+## (stat_smooth).</pre>
+
+<pre class = 'prettyprint lang-warning'>## Warning: Removed 1335 rows containing missing values
+## (geom_point).</pre>
+
+<p><img src="08-Graphics_files/figure-html/unnamed-chunk-4-1.png" width="720" /></p>
+
+</article></slide><slide class=""><hgroup><h2>Scales</h2></hgroup><article  id="scales">
+
+<p><a href='https://ggplot2.tidyverse.org/reference/#section-scales' title=''>Reference</a></p>
+
+</article></slide><slide class=""><hgroup><h2>Scales</h2></hgroup><article  id="scales-1">
+
+<pre class = 'prettyprint lang-warning'>## Warning: Transformation introduced infinite values in
+## continuous y-axis
+
+## Warning: Transformation introduced infinite values in
+## continuous y-axis</pre>
+
+<pre class = 'prettyprint lang-warning'>## Warning: Removed 13010 rows containing non-finite values
+## (stat_smooth).</pre>
+
+<pre class = 'prettyprint lang-warning'>## Warning: Removed 1335 rows containing missing values
+## (geom_point).</pre>
+
+<p><img src="08-Graphics_files/figure-html/unnamed-chunk-5-1.png" width="720" /></p>
+
+</article></slide><slide class=""><hgroup><h2>A comment about color</h2></hgroup><article  id="a-comment-about-color">
+
+<p><a href='https://ggplot2.tidyverse.org/reference/scale_viridis.html' title=''>viridis</a></p>
+
+<pre class = 'prettyprint lang-r'>plot3 + scale_color_viridis_d()</pre>
+
+<p><img src="08-Graphics_files/figure-html/unnamed-chunk-6-1.png" width="720" /> ## Fix Canada</p>
+
+<pre class = 'prettyprint lang-r'>plot4 &lt;- 
+ggplot(data= plot.data %&gt;% filter(is.na(`Province/State`))
+      , aes( x = Date   
+           , y = Count + 1L
+           , col = `Country/Region`
+           )                         
+      ) +               
+    geom_point( stat = &#39;unique&#39;
+              , size = 1         #&lt; An explicit aesthetic. 
+              ) + 
+    geom_smooth(method=&#39;gam&#39;, formula=y ~ s(x, bs = &quot;cs&quot;)) +   #&lt; new &#39;smooth&#39; layer
+    facet_wrap(~Metric, 3, 1)  +#&lt; faceting 
+    scale_y_log10(labels=scales::label_comma()) + 
+    scale_color_viridis_d()</pre>
+
+</article></slide><slide class=""><hgroup><h2></h2></hgroup><article >
+
+<pre class = 'prettyprint lang-warning'>## Warning: Removed 890 rows containing non-finite values
+## (stat_smooth).</pre>
+
+<pre class = 'prettyprint lang-warning'>## Warning: Removed 890 rows containing missing values
+## (geom_point).</pre>
+
+<p><img src="08-Graphics_files/figure-html/unnamed-chunk-8-1.png" width="720" /></p>
+
+</article></slide><slide class=""><hgroup><h2>Themes</h2></hgroup><article  id="themes" class="build">
+
+<p>Themes are what control the non-data elements of a visualization</p>
+
+<ul>
+<li>Axes</li>
+<li>Grid</li>
+<li>Background</li>
+<li>Legend positioning, etc.</li>
+</ul>
+
+<h3>Built-in themes</h3>
+
+<div class="columns-2">
+<div class="column">
+<ul>
+<li><code>theme_grey</code></li>
+<li><code>theme_bw</code></li>
+<li><code>theme_linedraw</code></li>
+<li><code>theme_light</code></li>
+</ul></div>
+
+<div class="column">
+<ul>
+<li><code>theme_dark</code></li>
+<li><code>theme_minimal</code></li>
+<li><code>theme_classic</code></li>
+</ul></div></div>
+
+</article></slide><slide class=""><hgroup><h2>Theme Example, Dark</h2></hgroup><article  id="theme-example-dark">
+
+<pre class = 'prettyprint lang-r'>plot4 + theme_dark()</pre>
+
+<p><img src="08-Graphics_files/figure-html/unnamed-chunk-9-1.png" width="720" /></p>
+
+</article></slide><slide class=""><hgroup><h2>Theme Example, Minimal</h2></hgroup><article  id="theme-example-minimal">
+
+<pre class = 'prettyprint lang-r'>plot4 + theme_minimal()</pre>
+
+<p><img src="08-Graphics_files/figure-html/unnamed-chunk-10-1.png" width="720" /></p>
+
+</article></slide><slide class=""><hgroup><h2>Customizing themes</h2></hgroup><article  id="customizing-themes">
+
+<pre class = 'prettyprint lang-r'>plot4 + theme_minimal() + 
+    theme(legend.position=&quot;top&quot;
+         , strip.background=element_rect(fill=&#39;black&#39;)
+         , strip.text= element_text(color=&#39;gold&#39;, face=&#39;bold&#39;))</pre>
+
+<p><img src="08-Graphics_files/figure-html/unnamed-chunk-11-1.png" width="720" /></p>
+
+</article></slide><slide class=""><hgroup><h2>Reuse your theme</h2></hgroup><article  id="reuse-your-theme">
+
+<pre class = 'prettyprint lang-r'>my.theme &lt;- theme_minimal() + theme(legend.position=&quot;top&quot;,
+    strip.background=element_rect(fill=&#39;black&#39;), 
+    strip.text= element_text(color=&#39;gold&#39;, face=&#39;bold&#39;))
+ebola.plot1+my.theme</pre>
+
+<pre class = 'prettyprint lang-error'>## Error in eval(expr, envir, enclos): object &#39;ebola.plot1&#39; not found</pre>
+
+</article></slide><slide class=""><hgroup><h2>The Shortcut <code>qplot</code> (quick plot)</h2></hgroup><article  id="the-shortcut-qplot-quick-plot">
+
+<pre class = 'prettyprint lang-r'>qplot( Date, Count + 1L, color = `Country/Region`
+     , shape= Metric
+     , data=plot.data %&gt;% filter(Date &gt; &quot;2021-04-01&quot;)) + 
+    scale_y_log10()</pre>
+
+<pre class = 'prettyprint lang-warning'>## Warning: Removed 162 rows containing missing values
+## (geom_point).</pre>
+
+<p><img src="08-Graphics_files/figure-html/unnamed-chunk-13-1.png" width="720" /></p>
+
+</article></slide><slide class=""><hgroup><h2>Exercises with Bordeaux Wines</h2></hgroup><article  id="exercises-with-bordeaux-wines">
+
+<ol>
+<li>Parker Points vs. Coates Points</li>
+<li>Parker Points or Coates Points vs. Price</li>
+<li>Price by First Growth or Cult Wine</li>
+<li>A plot that includes at least
+
+<ol>
+<li>Price</li>
+<li>Parker Points or Coates Points</li>
+<li>two of First Growth, Cult Wine, Pomerol, or Vintage Superstar</li>
+</ol></li>
+</ol>
+
+<div id="timer-plots" onclick="startTimer()" warnafter="120" class="timer">
+<p>10:00</p></div>
+
+</article></slide><slide class=""><hgroup><h2>Solution: Preliminary</h2></hgroup><article  id="solution-preliminary">
+
+<p>Fix the wine data so that the labels for indicators are a little nicer.</p>
+
+<pre class = 'prettyprint lang-r'>library(magrittr)</pre>
+
+<pre class = 'prettyprint lang-message'>## 
+## Attaching package: &#39;magrittr&#39;</pre>
+
+<pre class = 'prettyprint lang-message'>## The following object is masked from &#39;package:purrr&#39;:
+## 
+##     set_names</pre>
+
+<pre class = 'prettyprint lang-message'>## The following object is masked from &#39;package:tidyr&#39;:
+## 
+##     extract</pre>
+
+<pre class = 'prettyprint lang-r'>#assign back pipe
+wine &lt;- read.csv(&quot;data/Bordeaux.csv&quot;) %&gt;% 
+        mutate_at( vars(FirstGrowth:VintageSuperstar)
+                 , ~forcats::fct_recode(factor(.), No=&#39;0&#39;, Yes=&#39;1&#39;)
+                 )</pre>
+
+</article></slide><slide class=""><hgroup><h2>Solution: Parker Points vs. Coates Points</h2></hgroup><article  id="solution-parker-points-vs.-coates-points">
+
+<pre class = 'prettyprint lang-r'>qplot(data=wine, ParkerPoints, CoatesPoints, geom=&#39;point&#39;)</pre>
+
+<p><img src="08-Graphics_files/figure-html/unnamed-chunk-14-1.png" width="720" /></p>
+
+</article></slide><slide class=""><hgroup><h2>Solution: Parker Points vs. Price</h2></hgroup><article  id="solution-parker-points-vs.-price">
+
+<pre class = 'prettyprint lang-r'>qplot(data=wine, ParkerPoints, Price, geom=&#39;point&#39;) + 
+    labs(y = &#39;Price(\uA3)&#39;, x=&quot;Robert Parker Rating (Max:100)&quot;)</pre>
+
+<p><img src="08-Graphics_files/figure-html/unnamed-chunk-15-1.png" width="720" /></p>
+
+</article></slide><slide class=""><hgroup><h2>Solution: Price by First Growth Box plot</h2></hgroup><article  id="solution-price-by-first-growth-box-plot">
+
+<pre class = 'prettyprint lang-r'>qplot(data=wine, x=FirstGrowth, y=Price
+     , geom=&#39;boxplot&#39;, group=FirstGrowth) #&lt; must include a group.</pre>
+
+<p><img src="08-Graphics_files/figure-html/unnamed-chunk-16-1.png" width="720" /></p>
+
+</article></slide><slide class=""><hgroup><h2>Solution: Price by First Growth Density</h2></hgroup><article  id="solution-price-by-first-growth-density">
+
+<pre class = 'prettyprint lang-r'>ggplot(data=wine) + geom_density(aes(x=Price, fill=FirstGrowth), alpha=0.5)+
+    scale_fill_viridis_d()</pre>
+
+<p><img src="08-Graphics_files/figure-html/unnamed-chunk-17-1.png" width="720" /></p>
+
+</article></slide><slide class=""><hgroup><h2>Solution: Price by First Growth Violins</h2></hgroup><article  id="solution-price-by-first-growth-violins">
+
+<pre class = 'prettyprint lang-r'>ggplot(data=wine) + geom_violin(aes(y=Price, x=FirstGrowth, fill=FirstGrowth))+
+    scale_fill_viridis_d()</pre>
+
+<p><img src="08-Graphics_files/figure-html/unnamed-chunk-18-1.png" width="720" /></p>
+
+</article></slide><slide class=""><hgroup><h2>Solution: Price by First Growth Guitar Plot</h2></hgroup><article  id="solution-price-by-first-growth-guitar-plot">
+
+<pre class = 'prettyprint lang-r'>ggplot(data=wine) + geom_violin(aes(y=Price, x=FirstGrowth, fill=FirstGrowth))+
+    scale_fill_viridis_d()</pre>
+
+<img src='images/Guitars.jpg' title=''/>
+
+</article></slide><slide class=""><hgroup><h2>Solution: all the variables.</h2></hgroup><article  id="solution-all-the-variables.">
+
+<pre class = 'prettyprint lang-r'>all.the.variables &lt;- ggplot(data=wine) + 
+    # Five variables here.
+    geom_point(aes( x   = ParkerPoints, y   = CoatesPoints
+                  , col = Price, shape = Pomerol:VintageSuperstar
+                  )
+              # Jitter the position to avoid over-plotting
+              , position=position_jitter(.4, .4))+
+    # grid for two more variables
+    facet_grid( FirstGrowth~CultWine
+              , labeller=label_both 
+              ) + #^ Labels have both variable name and level.
+    # Make colors pop for high value wines.
+    scale_color_viridis_c(trans = &#39;log10&#39;, option=&quot;inferno&quot;, end=0.75) + 
+    labs( x = &quot;Robert Parker Rating (Max:100)&quot;
+        , y = &quot;Clive Coates Rating (Max:20)&quot;
+        , color = &#39;Price(\uA3)&#39;)</pre>
+
+</article></slide><slide class=""><hgroup><h2>Solution: all the variables.</h2></hgroup><article  id="solution-all-the-variables.-1">
+
+<pre class = 'prettyprint lang-r'>all.the.variables</pre>
+
+<p><img src="08-Graphics_files/figure-html/unnamed-chunk-20-1.png" width="720" /></p></article></slide>
+
+
+  <slide class="backdrop"></slide>
+
+</slides>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+<!-- map slide visiblity events into shiny -->
+<script>
+  (function() {
+    if (window.jQuery) {
+       window.jQuery(document).on('slideleave', function(e) {
+         window.jQuery(e.target).trigger('hidden');
+      });
+       window.jQuery(document).on('slideenter', function(e) {
+         window.jQuery(e.target).trigger('shown');
+      });
+    }
+  })();
+</script>
+
+</body>
+</html>

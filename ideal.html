@@ -11,7 +11,7 @@
 
 
 
-<title>R Bootcamp 2021</title>
+<title>Idealized Code</title>
 
 <script src="site_libs/header-attrs-2.8/header-attrs.js"></script>
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
@@ -32,6 +32,8 @@
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet" />
+<script src="site_libs/pagedtable-1.1/js/pagedtable.js"></script>
 
 <style type="text/css">
   code{white-space: pre-wrap;}
@@ -259,54 +261,90 @@ $(document).ready(function () {
 
 
 
-<h1 class="title toc-ignore">R Bootcamp 2021</h1>
+<h1 class="title toc-ignore">Idealized Code</h1>
 
 </div>
 
 
-<p>R Users,</p>
-<p>Welcome to R Bootcamp 2021.</p>
-<p>This webpage will be your guide to this course. Please Start by reading the <a href="syllabus.html">Syllabus</a></p>
-<div id="slides" class="section level2">
-<h2>Slides</h2>
-<p><em>Links will be made live after class</em></p>
-<ul>
-<li><a href="00-Introductions.html">Introductions</a> <a href="pdf/Introductions.pdf"><img src="images/pdf.png" /></a></li>
-<li><a href="01-Principles.html">Principles</a> <a href="pdf/Principles.pdf"><img src="images/pdf.png" /></a></li>
-<li><a href="02-Resources.html">Resources</a> <a href="pdf/Resources.pdf"><img src="images/pdf.png" /></a></li>
-<li><a href="03-Syntax.html">Syntax &amp; Data Structures</a> <a href="pdf/Syntax.pdf"><img src="images/pdf.png" /></a></li>
-<li><a href="04-Packages.html">Packages</a> <a href="pdf/Packages.pdf"><img src="images/pdf.png" /></a></li>
-<li><a href="05-Tidyverse.html">Tidyverse</a> <a href="pdf/Tidyverse.pdf"><img src="images/pdf.png" /></a></li>
-<li><a href="06-GettingData.html">Getting Data</a> <a href="pdf/GettingData.pdf"><img src="images/pdf.png" /></a></li>
-<li><a href="07-DataWrangling.html">Data Wrangling</a> <a href="pdf/DataWrangling.pdf"><img src="images/pdf.png" /></a></li>
-<li><a href="08-Graphics">Graphics</a></li>
-<li>Analysis</li>
-<li>Wrapup</li>
-</ul>
+<pre class="r"><code>library(knitr)
+library(printr)</code></pre>
+<pre><code>## Registered S3 method overwritten by &#39;printr&#39;:
+##   method                from     
+##   knit_print.data.frame rmarkdown</code></pre>
+<pre class="r"><code>library(tidyverse)
+library(magrittr)</code></pre>
+<pre><code>## 
+## Attaching package: &#39;magrittr&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:purrr&#39;:
+## 
+##     set_names</code></pre>
+<pre><code>## The following object is masked from &#39;package:tidyr&#39;:
+## 
+##     extract</code></pre>
+<pre class="r"><code>library(wbstats)
+requireNamespace(&quot;countrycode&quot;)</code></pre>
+<pre><code>## Loading required namespace: countrycode</code></pre>
+<p>In the course of work there is an ideal of code quality that we strive for.</p>
+<div class="figure">
+<img src="%22images/wtfpm.jpg%22" alt="" />
+<p class="caption">images/wtfpm.jpg</p>
 </div>
-<div id="data" class="section level2">
-<h2>Data</h2>
+<p>Few ever achieve ‘ideal’ code quality. I hope here to show the difference between what would be an ideal vs what reality is much to look like.</p>
+<div id="ideal" class="section level2">
+<h2>Ideal</h2>
+<p>This is a close to ideal single statement that goes from files to final data in a single command.</p>
+<pre class="r"><code>covid.data.long.final &lt;-
+    # List files 
+    list.files(&#39;data&#39;, pattern=&quot;[.]csv$&quot;, full.names=TRUE) %&gt;% 
+    # Give appropriate names which will become a label later.
+    set_names(.,tools::toTitleCase(xfun::sans_ext(basename(.)))) %&gt;% 
+    # Read the files and bind together
+    map_dfr( read_csv
+           , col_type = cols(
+                  .default = col_integer(),
+                  `Province/State` = col_character(),
+                  `Country/Region` = col_character(),
+                  Long = col_double(),
+                  Lat  = col_double()
+                )
+            , .id = &quot;Metric&quot;) %&gt;% 
+    # Pivot day columns to long format
+    tidyr::pivot_longer( cols=matches(&quot;\\d+/\\d+/\\d+&quot;)
+                       , names_to=&quot;Date&quot;
+                       , values_to=&quot;Count&quot;
+                       ) %&gt;%
+    # Clean up Date variable
+    mutate_at(&#39;Date&#39;, lubridate::mdy) %&gt;% 
+    # spread metrics confirmed recovered and deaths to separate columns
+    tidyr::pivot_wider(names_from=Metric,values_from=Count) %&gt;% 
+    # Get iso3c country code from country code package
+    # to match with world bank data.
+    mutate( iso3c = countrycode::countrycode(`Country/Region`, &#39;country.name&#39;, &#39;iso3c&#39;)
+          ) %&gt;% 
+    # Sort 
+    arrange(`Country/Region`, `Province/State`, Date) %&gt;%
+    # Combine with country demographics pulled from world bank
+    left_join(wb_data(indicator = c( &#39;SP.URB.TOTL.ZS&#39;, &#39;SP.POP.TOTL.MA.ZS&#39;
+                                   , &#39;SP.POP.TOTL&#39;, &#39;EN.POP.DNST&#39;
+                                   , &#39;IN.POV.HCR.EST.TOTL&#39;, &#39;NY.GDP.PCAP.CD&#39;)
+                   , start_date = 2020, end_date=2020)
+             , by=&#39;iso3c&#39;
+             )</code></pre>
+<pre><code>## Warning in countrycode_convert(sourcevar = sourcevar, origin = origin, destination = dest, : Some values were not matched unambiguously: Diamond Princess, Kosovo, Micronesia, MS Zaandam</code></pre>
+<pre class="r"><code>saveRDS(covid.data.long.final, file=&quot;data/covid.data.long.final.rds&quot;)</code></pre>
 </div>
-<div id="videos" class="section level2">
-<h2>Videos</h2>
-<p><em>Posted as available</em></p>
-<ul>
-<li><a href="https://web.microsoftstream.com/video/e3995b77-2d34-4bd8-94c6-d2c14b0564f1">Day 1</a></li>
-<li><a href="https://web.microsoftstream.com/video/26606340-3403-4fac-9fb2-b4b3435d6693?list=studio">Day 2</a></li>
-<li><a href="https://web.microsoftstream.com/video/1b04a820-4865-4d52-8899-f8c737ada126">Day 3</a></li>
-<li>Day 4</li>
-<li>Day 5</li>
-</ul>
+<div id="find-unmatched-countries" class="section level2">
+<h2>Find unmatched countries</h2>
+<pre class="r"><code>covid.data.long.final %&gt;% 
+    group_by(`Country/Region`, iso3c) %&gt;% 
+    summarize(n_missing = sum(is.na(SP.POP.TOTL))) %&gt;% 
+    filter(n_missing &gt; 0)</code></pre>
+<pre><code>## `summarise()` has grouped output by &#39;Country/Region&#39;. You can override using the `.groups` argument.</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["Country/Region"],"name":[1],"type":["chr"],"align":["left"]},{"label":["iso3c"],"name":[2],"type":["chr"],"align":["left"]},{"label":["n_missing"],"name":[3],"type":["int"],"align":["right"]}],"data":[{"1":"Diamond Princess","2":"NA","3":"445"},{"1":"Eritrea","2":"ERI","3":"445"},{"1":"Holy See","2":"VAT","3":"445"},{"1":"Kosovo","2":"NA","3":"445"},{"1":"Micronesia","2":"NA","3":"445"},{"1":"MS Zaandam","2":"NA","3":"445"},{"1":"Taiwan*","2":"TWN","3":"445"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
 </div>
-<div id="section" class="section level1 footer">
-<h1 class="footer"></h1>
-<hr>
-<style type="text/css">
-.footer p {
-    font-size: smaller
-}
-</style>
-<p>Last Updated: <em>2021-08-19 08:30:01</em></p>
 </div>
 
 

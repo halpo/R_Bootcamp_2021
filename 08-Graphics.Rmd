@@ -1,0 +1,477 @@
+---
+title: "Graphics"
+author: "Andrew Redd, PhD."
+date: "R Bootcamp 2020"
+output: 
+    ioslides_presentation:
+        logo: "images/U_Health_stacked_png_red.png"
+        theme: "paper"
+        css: "style.css"
+        keep_md: FALSE
+        md_extensions: 
+            - "+task_lists"
+            - "+multiline_tables"
+        includes:
+            in_header: timer.htm
+        standalone: TRUE
+        widescreen: TRUE
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+library(printr)
+library(tidyverse)
+library(ggplot2)
+knitr::opts_chunk$set(echo = TRUE, error=TRUE
+                     , class.error='error'
+                     , class.warning='warning'
+                     , class.message='message'
+                     , cache=FALSE
+                     , warning = FALSE)
+options( repos="https://cran.rstudio.org"
+       , width=60
+       )
+```
+
+
+# Plots
+
+```{r echo=FALSE, purl=FALSE, message=FALSE, dev='svg'}
+library(ggridges)
+library(viridis)
+ggplot(lincoln_weather, aes(x = `Mean Temperature [F]`, y = `Month`, fill = ..x..)) +
+  geom_density_ridges_gradient(scale = 3, rel_min_height = 0.01) +
+  scale_fill_viridis(name = expression(paste("Temperature [",degree,"F]"))
+                    , option = "C") +
+  labs(title = NULL)
+```
+
+## Packages
+
+### Must have
+* [`ggplot2`](https://cran.r-project.org/package=ggplot2)
+* [`viridis`](https://cran.r-project.org/package=viridis)
+
+### Extras to check out
+* [`ggridges`](https://cran.r-project.org/package=ggplot2)
+
+
+## Thought Exercise:
+
+> What are we trying to do with graphics?
+
+## Example: What are the components?
+
+```{r, echo=FALSE, message=FALSE}
+ggplot(data = readRDS("data/bordeaux.rds"), aes(x=CoatesPoints, y=Price) ) + 
+    geom_point() + 
+    geom_smooth() +
+    labs(x =  "Wine Rating")
+```
+
+## Graphics Systems
+
+There are esentially 3 graphics systems in R:
+
+1. Base graphics
+2. Grid graphics
+3. ggplot2
+
+## Base Graphics
+
+Don't waste your time
+
+## Base Graphics
+
+An even bigger waste of time
+
+
+# Grammar of Graphics
+
+![](images/treasure-map-2.webp){}
+
+## Gramar of Graphics
+
+Building blocks of data visualizations.
+
+* Aesthetics
+    * location
+    * size
+    * shape
+    * height
+    * width
+    * area
+    * color
+        - fill
+        - border
+    * transparency
+    * ~~time/animation~~
+
+## Gramar of Graphics
+
+Building ![](images/Brick_blue.png)blocks![](images/Brick_blue.png) of data visualizations.
+
+* Aesthetics...
+* Data 
+    - map variables from data to aesthetics
+    - Summarizations
+        + outliers, Q1, Median Q3, outliers &#8594; Box plots
+        + binning &#8594; histograms 
+        + density &#8594; density, violin, etc.
+        + smoothing: loess, splines, etc.
+
+
+## Gramar of Graphics
+
+Building blocks of data visualizations.
+
+* Aesthetics...
+* Data 
+* Coordinate System
+    + Cartesian
+    + Geographic
+    + Polar
+    + Scaling
+        - Logarithmic
+        - Square-root
+        
+
+## Gramar of Graphics
+
+Building blocks of data visualizations.
+
+* Aesthetics...
+* Data 
+* Coordinate System
+* Facets
+    * Grid
+    * Strip
+    * Wrap 
+
+## Gramar of Graphics
+
+Building blocks of data visualizations.
+
+* Aesthetics...
+* Data 
+* Coordinate System
+* Facets
+    * Grid
+    * Strip
+    * Wrap 
+    
+## Terminology
+
+:::{.terminology}
+Data
+    
+: What we are visualizing
+
+Geometry
+
+: The type of visualization.
+
+Mapping
+
+: How variables translate variables from data to aesthetic components
+  of the graph.
+
+Statistic
+
+: If and how variables are to be summarized prior to being mapped to
+  aesthetics.
+
+:::
+
+## Terminology
+
+:::{.terminology}
+Coordinates
+
+: How Axes are displayed.
+
+Facets
+
+: How a visualization is to be broken into parts.
+
+Position
+
+: How elements should be positioned; sitter, stacked, dodge, etc.
+
+:::
+
+## Example
+```{r plot1, results='hide'}
+library(ggplot2)
+load("data/covid.data.long.final.RData")
+plot1 <- 
+ggplot(data=covid.data.long.final) +               #< Our 'data' component
+    geom_point(                         #< a point geometry layer
+        aes( x = Date  #< our mappings
+           , y = Confirmed
+           , col = `Country/Region`
+           )                         
+      , stat = 'unique'                 #< our statistic  
+      , position = 'identity'           #< how to position data
+    ) + 
+    scale_color_viridis_d(guide=FALSE)
+```
+
+## Example
+```{r}
+plot1
+```
+We can do better.
+
+## Layers
+
+:::{.terminology}
+Layers
+
+: Layers are the combination of a geometry, data, mapping, statistic, and position.
+
+    Graphs may have and often do have many layers in them.
+:::
+
+![](images/onions.jpg){.float-right}
+
+## Layered Example
+
+```{r plot2, results='hide'}
+library(ggplot2)
+load("data/covid.data.long.final.RData")
+plot.data <- covid.data.long.final %>% 
+            filter(iso3c %in% !!c('USA', 'CAN', 'MEX')) %>% 
+            pivot_longer( Confirmed:Recovered
+                        , names_to = 'Metric'
+                        , values_to= 'Count'
+                        ) 
+plot2 <- 
+ggplot(data= plot.data
+      , aes( x = Date   
+           , y = Count
+           , col = `Country/Region`
+           )                         
+      ) +               
+    geom_point( stat = 'unique'
+              , size = 1         #< An explicit aesthetic. 
+              ) + 
+    geom_smooth(method='gam', formula=y ~ s(x, bs = "cs")) +   #< new 'smooth' layer
+    facet_wrap(~Metric, 3, 1)  #< faceting 
+```
+
+## Layered Example
+
+```{r echo=FALSE}
+plot2
+```
+
+## Scales
+
+[Reference](https://ggplot2.tidyverse.org/reference/#section-scales)
+
+```{r plot3, echo=FALSE, warning=FALSE, message=FALSE, dev='svg'}
+plot3 <- 
+    plot2 + 
+    scale_y_log10(labels=scales::label_comma())
+```
+
+## Scales
+
+```{r echo=FALSE}
+plot3
+```
+
+
+## A comment about color
+[viridis](https://ggplot2.tidyverse.org/reference/scale_viridis.html)
+```{r messages=FALSE, warning=FALSE}
+plot3 + scale_color_viridis_d()
+```
+## Fix Canada
+
+```{r}
+plot4 <- 
+ggplot(data= plot.data %>% filter(is.na(`Province/State`))
+      , aes( x = Date   
+           , y = Count + 1L
+           , col = `Country/Region`
+           )                         
+      ) +               
+    geom_point( stat = 'unique'
+              , size = 1         #< An explicit aesthetic. 
+              ) + 
+    geom_smooth(method='gam', formula=y ~ s(x, bs = "cs")) +   #< new 'smooth' layer
+    facet_wrap(~Metric, 3, 1)  +#< faceting 
+    scale_y_log10(labels=scales::label_comma()) + 
+    scale_color_viridis_d()
+
+```
+
+-----
+
+```{r echo=FALSE}
+plot4
+```
+
+
+
+## Themes{.build}
+
+Themes are what control the non-data elements of a visualization
+
+* Axes
+* Grid
+* Background
+* Legend positioning, etc.
+
+### Built-in themes
+
+::::::{.columns-2}
+:::{.column}
+* `theme_grey`
+* `theme_bw`
+* `theme_linedraw`
+* `theme_light`
+:::
+:::{.column}
+* `theme_dark`
+* `theme_minimal`
+* `theme_classic`
+:::
+::::::
+
+## Theme Example, Dark
+
+```{r messages=FALSE, warning=FALSE}
+plot4 + theme_dark()
+```
+
+## Theme Example, Minimal
+
+```{r messages=FALSE, warning=FALSE}
+plot4 + theme_minimal()
+```
+
+
+## Customizing themes
+
+```{r messages=FALSE, warning=FALSE}
+plot4 + theme_minimal() + 
+    theme(legend.position="top"
+         , strip.background=element_rect(fill='black')
+         , strip.text= element_text(color='gold', face='bold'))
+```
+
+## Reuse your theme
+
+```{r}
+my.theme <- theme_minimal() + theme(legend.position="top",
+    strip.background=element_rect(fill='black'), 
+    strip.text= element_text(color='gold', face='bold'))
+ebola.plot1+my.theme
+```
+
+## The Shortcut `qplot` (quick plot)
+
+```{r}
+qplot( Date, Count + 1L, color = `Country/Region`
+     , shape= Metric
+     , data=plot.data %>% filter(Date > "2021-04-01")) +
+    geom_line()+
+    scale_y_log10()
+```
+
+
+
+## Exercises with Bordeaux Wines
+
+1. Parker Points vs. Coates Points
+2. Parker Points or Coates Points vs. Price
+3. Price by First Growth or Cult Wine
+4. A plot that includes at least
+    a. Price
+    b. Parker Points or Coates Points
+    c. two of First Growth, Cult Wine, Pomerol, or Vintage Superstar
+
+:::{#timer-plots .timer onclick="startTimer()" warnafter=120}
+10:00
+:::
+
+## Solution: Preliminary
+
+Fix the wine data so that the labels for indicators are a little nicer.
+
+
+```{r "fix_wine_data"}
+library(magrittr)
+#assign back pipe
+wine <- read.csv("data/Bordeaux.csv") %>% 
+        mutate_at( vars(FirstGrowth:VintageSuperstar)
+                 , ~forcats::fct_recode(factor(.), No='0', Yes='1')
+                 )
+```
+
+## Solution: Parker Points vs. Coates Points
+```{r }
+qplot(data=wine, ParkerPoints, CoatesPoints, geom='point')
+```
+
+## Solution: Parker Points vs. Price
+```{r }
+qplot(data=wine, ParkerPoints, Price, geom='point') + 
+    labs(y = 'Price(\uA3)', x="Robert Parker Rating (Max:100)")
+```
+
+## Solution: Price by First Growth Box plot
+```{r }
+qplot(data=wine, x=FirstGrowth, y=Price
+     , geom='boxplot', group=FirstGrowth) #< must include a group.
+```
+
+## Solution: Price by First Growth Density
+```{r }
+ggplot(data=wine) + geom_density(aes(x=Price, fill=FirstGrowth), alpha=0.5)+
+    scale_fill_viridis_d()
+```
+
+## Solution: Price by First Growth Violins
+
+```{r }
+ggplot(data=wine) + geom_violin(aes(y=Price, x=FirstGrowth, fill=FirstGrowth))+
+    scale_fill_viridis_d()
+```
+
+## Solution: Price by First Growth Guitar Plot
+```{r , purl=FALSE, fig.keep='none'}
+ggplot(data=wine) + geom_violin(aes(y=Price, x=FirstGrowth, fill=FirstGrowth))+
+    scale_fill_viridis_d()
+```
+
+![](images/Guitars.jpg)
+
+## Solution: all the variables.
+```{r all.the.variables}
+all.the.variables <- ggplot(data=wine) + 
+    # Five variables here.
+    geom_point(aes( x   = ParkerPoints, y   = CoatesPoints
+                  , col = Price, shape = Pomerol:VintageSuperstar
+                  )
+              # Jitter the position to avoid over-plotting
+              , position=position_jitter(.4, .4))+
+    # grid for two more variables
+    facet_grid( FirstGrowth~CultWine
+              , labeller=label_both 
+              ) + #^ Labels have both variable name and level.
+    # Make colors pop for high value wines.
+    scale_color_viridis_c(trans = 'log10', option="inferno", end=0.75) + 
+    labs( x = "Robert Parker Rating (Max:100)"
+        , y = "Clive Coates Rating (Max:20)"
+        , color = 'Price(\uA3)')
+```
+
+## Solution: all the variables.
+
+```{r}
+all.the.variables
+```

@@ -1,0 +1,80 @@
+---
+title: "Idealized Code"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=TRUE}
+library(knitr)
+library(printr)
+library(tidyverse)
+library(magrittr)
+library(wbstats)
+requireNamespace("countrycode")
+```
+
+In the course of work there is an ideal of code quality that we strive for.
+
+![images/wtfpm.jpg]("images/wtfpm.jpg")
+
+Few ever achieve 'ideal' code quality.  I hope here to show the difference between what would be an ideal vs what reality is much to look like.
+
+
+## Ideal
+
+This is a close to ideal single statement that goes from files to final data in a single command.
+
+```{r}
+covid.data.long.final <-
+    # List files 
+    list.files('data', pattern="[.]csv$", full.names=TRUE) %>% 
+    # Give appropriate names which will become a label later.
+    set_names(.,tools::toTitleCase(xfun::sans_ext(basename(.)))) %>% 
+    # Read the files and bind together
+    map_dfr( read_csv
+           , col_type = cols(
+                  .default = col_integer(),
+                  `Province/State` = col_character(),
+                  `Country/Region` = col_character(),
+                  Long = col_double(),
+                  Lat  = col_double()
+                )
+            , .id = "Metric") %>% 
+    # Pivot day columns to long format
+    tidyr::pivot_longer( cols=matches("\\d+/\\d+/\\d+")
+                       , names_to="Date"
+                       , values_to="Count"
+                       ) %>%
+    # Clean up Date variable
+    mutate_at('Date', lubridate::mdy) %>% 
+    # spread metrics confirmed recovered and deaths to separate columns
+    tidyr::pivot_wider(names_from=Metric,values_from=Count) %>% 
+    # Get iso3c country code from country code package
+    # to match with world bank data.
+    mutate( iso3c = countrycode::countrycode(`Country/Region`, 'country.name', 'iso3c')
+          ) %>% 
+    # Sort 
+    arrange(`Country/Region`, `Province/State`, Date) %>%
+    # Combine with country demographics pulled from world bank
+    left_join(wb_data(indicator = c( 'SP.URB.TOTL.ZS', 'SP.POP.TOTL.MA.ZS'
+                                   , 'SP.POP.TOTL', 'EN.POP.DNST'
+                                   , 'IN.POV.HCR.EST.TOTL', 'NY.GDP.PCAP.CD')
+                   , start_date = 2020, end_date=2020)
+             , by='iso3c'
+             )
+saveRDS(covid.data.long.final, file="data/covid.data.long.final.rds")
+```
+
+## Find unmatched countries
+```{r}
+covid.data.long.final %>% 
+    group_by(`Country/Region`, iso3c) %>% 
+    summarize(n_missing = sum(is.na(SP.POP.TOTL))) %>% 
+    filter(n_missing > 0)
+```
+
+
+
+
+

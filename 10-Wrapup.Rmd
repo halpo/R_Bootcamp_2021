@@ -1,0 +1,311 @@
+---
+title: "Wrapup"
+author: "Andrew Redd, PhD."
+date: "R Bootcamp 2021"
+output: 
+    ioslides_presentation:
+        logo: "images/U_Health_stacked_png_red.png"
+        theme: "paper"
+        css: "style.css"
+        keep_md: FALSE
+        md_extensions: 
+            - "+task_lists"
+            - "+multiline_tables"
+        includes:
+            in_header: timer.htm
+        standalone: TRUE
+        widescreen: TRUE
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+library(printr)
+library(tidyverse)
+library(magrittr)
+knitr::opts_chunk$set(echo = TRUE, error=TRUE
+                     , class.error='error'
+                     , class.warning='warning'
+                     , class.message='message'
+                     , cache=FALSE)
+options( repos="https://cran.rstudio.org"
+       , width=60
+       )
+```
+
+
+# Bringing it Together
+
+## Reproducible Research
+
+> "... the original data (and original computer code) 
+> can be analyzed (by an independent investigator) 
+> to obtain the same results of the original study.
+> In essence, it is the notion that the 
+> _data analysis can be successfully repeated._"
+>  - Roger Peng
+
+## Why Reproducible
+
+[![You can't trust code that you did not totally create yourself. (Especially code from companies that employ people like me.) No amount of source-level verification or scrutiny will protect you from using untrusted code. - Kenneth P. Thompson](//www.azquotes.com/picture-quotes/quote-you-can-t-trust-code-that-you-did-not-totally-create-yourself-especially-code-from-companies-kenneth-p-thompson-119-41-26.jpg)](https://www.azquotes.com/quote/1194126)
+
+## Code Design Principles
+
+* Document **EVERYTHING**
+* Only use text files
+* All input should be *human* readable.
+* Organize your files
+    + Use folders
+    + Scripts for management
+    + Markdown for reports
+* _Never_ modify raw data
+
+## Scripts
+
+* Scripts end with `.r` or `.R`
+* May be ran with
+    - `R CMD BATCH <<script.R>>`
+    - `Rscript <<script.R>>`
+
+See [`?Rscript`](https://www.rdocumentation.org/packages/utils/versions/3.6.2/topics/Rscript) or:
+
+* [`callr::rscript`](https://www.rdocumentation.org/packages/callr/versions/3.4.3/topics/rscript)
+* [`xfun::Rscript`](https://www.rdocumentation.org/packages/xfun/versions/0.16/topics/Rscript)
+
+## Parallelization and CHPC
+
+The easiest way I have found to take advantage of High Performance Computing (HPC) Clusters like the University's [CHPC](//chpc.utah.edu) is:
+
+1. parallelize inside a script leveraging either,
+    * [`foreach`](//cran.r-project.org/package=foreach) or
+    * [`futures`](//cran.r-project.org/package=futures), then
+2. spawn multiple jobs that each run a version of the script.
+
+*though this may be easier to avoid with futures.*
+
+## R Markdown
+
+![Rmarkdown](https://bookdown.org/yihui/rmarkdown/images/hex-rmarkdown.png){.float-right}
+
+R Markdown allows for mixing code & results into documents to create
+reproducible analyses, reports and presentations.
+
+* <https://rmarkdown.rstudio.com/>
+* <https://bookdown.org/yihui/rmarkdown/>
+
+## Why Markdown?
+
+* Easy to read
+* Easy to write
+* Can be converted to many outputs
+
+
+## Output Formats
+
+See <https://rmarkdown.rstudio.com/formats.html>
+
+* HTML
+* PDF, via LaTeX
+* Word
+* Markdown (change the flavor)
+* Presentations
+    + ioslides, this
+    + reveal.js
+    + Slidy
+    + Beamer (LaTeX pdf)
+    + even *PowerPoint*
+* Journal Article Formats
+* Books ([bookdown](https://bookdown.org/yihui/bookdown/))
+* Blogs ([blogdown](https://bookdown.org/yihui/blogdown/))
+* Etcetera.
+
+## Writing in Markdown
+
+**Code**     **Output**
+------------ ----------------------------
+`# h1`        `<h1>h1</h1>` or equivalent 
+`## h2`       `<h2>h1</h2>` or equivalent 
+`### h3`      `<h3>h1</h3>` or equivalent 
+`*emph*`      *emph*
+`**strong**`  **strong**
+`~~strike~~`  ~~strike~~
+
+
+## Lists
+
+```
+1. one 
+2. two 
+* three
+    + four
+```
+
+1. one 
+2. two 
+* three
+    + four
+
+## Math
+
+Math can be included with LaTeX ussing dollar signs,  `$` for inline and `$$` for block statement
+
+```
+$$f(k) = {n \choose k} p^{k} (1-p)^{n-k}$$
+```
+
+Produces:
+
+$$f(k) = {n \choose k} p^{k} (1-p)^{n-k}$$
+
+## Tables: Simple
+
+``````````
+**Code**     **Output**
+------------ ----------------------------
+`# h1`        `<h1>h1</h1>` or equivalent 
+`## h2`       `<h2>h1</h2>` or equivalent 
+`### h3`      `<h3>h1</h3>` or equivalent 
+`*emph*`      *emph*
+`**strong**`  **strong**
+`~~strike~~`  ~~strike~~
+``````````
+
+## Tables: Pandoc style
+
+``````````
+--------------------------------------
+ Petal.Length   Petal.Width   Species 
+-------------- ------------- ---------
+     1.4            0.2       setosa  
+
+     1.4            0.2       setosa  
+
+     1.3            0.2       setosa  
+
+     1.5            0.2       setosa  
+
+     1.4            0.2       setosa  
+
+     1.7            0.4       setosa  
+--------------------------------------
+``````````
+
+
+# Table: Pipe Style
+
+``````````
++--------------+-------------+---------+
+| Petal.Length | Petal.Width | Species |
++==============+=============+=========+
+| 1.40         | 0.20        | setosa  |
++--------------+-------------+---------+
+| 1.40         | 0.20        | setosa  |
++--------------+-------------+---------+
+| 1.30         | 0.20        | setosa  |
++--------------+-------------+---------+
+| 1.50         | 0.20        | setosa  |
++--------------+-------------+---------+
+| 1.40         | 0.20        | setosa  |
++--------------+-------------+---------+
+| 1.70         | 0.40        | setosa  |
++--------------+-------------+---------+
+``````````
+
+## Tables the easy way.
+
+* `library(printr)` in your setup chunk
+
+```{r}
+library(printr)
+head(iris)
+```
+
+
+## Embedding R Code
+
+embed R code with the tick/grave symbol (above tab)
+
+* inline
+
+`````{r, echo=FALSE, results='asis'}
+"```````" %>% cat('\n')
+"    * Inline `r code`" %>% cat("\n")
+"```````" %>% cat('\n')
+```
+
+* block code
+
+`````{r, echo=FALSE, results='asis'}
+"```````" %>% cat('\n')
+"    ```{r name, options...}" %>% cat('\n')
+"    ```" %>% cat('\n')
+"```````" %>% cat('\n')
+`````
+
+Example:
+
+`````{r, echo=FALSE, results='asis'}
+"```````" %>% cat('\n')
+"   ```{r setup, results='hide'}" %>% cat('\n')
+"    library(knitr)" %>% cat('\n')
+"    ```" %>% cat('\n')
+"```````" %>% cat('\n')
+`````
+
+
+## Setting options
+
+Each chunk can have options set.
+Specified after the name.
+complete list at <http://yihui.name/knitr/options>
+
+* echo=TRUE
+    - controls if the input commands are repeated.
+* results='markup'
+    - 'markup' wrapps the output in an appropriate environment.
+    - 'asis' don't do anything with output.
+    - 'hide' don't show any output.
+    
+Message Control
+----------------
+* error=TRUE
+    + print errors
+* warning=TRUE
+    + print warnings
+* message=TRUE
+    + print control messages
+    
+Very useful when loading packages.
+
+Plots
+------
+
+* `dev`
+    - default depends on the format.
+    - useful when going from markdown to pdf.
+* `fig.width` & `fig.height`
+
+
+# What I Hope you learned
+
+## What I Hope you learned {.build}
+
+* Know where to find help.
+
+<!---->
+
+* Think in R, use the building blocks you have learned.
+
+<!---->
+
+* A desire to learn more R.
+
+## Join the Salt Lake City R Users Group
+
+:::{.center}
+https://www.meetup.com/slc-rug
+:::
+
+
+## {.flexbox .vcenter .center}
+
+Questions?
